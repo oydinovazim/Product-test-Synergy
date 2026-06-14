@@ -6,502 +6,197 @@
 <title>Synergy Pharmco — Тестирование</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600&display=swap');
-
   :root {
-    --navy: #0D1B2A;
-    --navy-mid: #1A2F45;
-    --navy-light: #243B55;
-    --gold: #C9A84C;
-    --gold-light: #E8C97A;
-    --white: #FFFFFF;
-    --bg: #F4F6F9;
-    --text: #1A2F45;
-    --text-muted: #6B7A8D;
-    --border: #DDE3EA;
-    --success: #2E7D52;
-    --error: #C0392B;
-    --success-bg: #E8F5EE;
-    --error-bg: #FDECEA;
-    --radius: 12px;
-    --shadow: 0 4px 24px rgba(13,27,42,0.10);
-    --shadow-sm: 0 2px 8px rgba(13,27,42,0.07);
+    --navy:#0D1B2A;--navy-mid:#1A2F45;--navy-light:#243B55;
+    --gold:#C9A84C;--gold-light:#E8C97A;--white:#FFFFFF;
+    --bg:#F4F6F9;--text:#1A2F45;--text-muted:#6B7A8D;--border:#DDE3EA;
+    --success:#2E7D52;--error:#C0392B;--success-bg:#E8F5EE;--error-bg:#FDECEA;
+    --radius:12px;--shadow:0 4px 24px rgba(13,27,42,0.10);--shadow-sm:0 2px 8px rgba(13,27,42,0.07);
   }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .header{background:var(--navy);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(0,0,0,0.2);}
+  .header-logo{display:flex;align-items:center;gap:12px;}
+  .logo-icon{width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--navy);font-size:16px;}
+  .logo-text{font-family:'Playfair Display',serif;color:var(--white);font-size:18px;line-height:1.2;}
+  .logo-sub{color:var(--gold);font-size:11px;font-family:'Inter',sans-serif;font-weight:400;letter-spacing:0.5px;}
+  .header-admin-btn{background:transparent;border:1px solid rgba(201,168,76,0.4);color:var(--gold);padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;}
+  .header-admin-btn:hover{background:rgba(201,168,76,0.1);}
 
-  body {
-    font-family: 'Inter', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
+  .screen{display:none;}.screen.active{display:block;}
+  .container{max-width:680px;margin:0 auto;padding:32px 16px;}
+  .card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:32px;}
+  .screen-title{font-family:'Playfair Display',serif;font-size:24px;color:var(--navy);margin-bottom:6px;}
+  .screen-sub{color:var(--text-muted);font-size:14px;margin-bottom:28px;line-height:1.5;}
 
-  /* HEADER */
-  .header {
-    background: var(--navy);
-    padding: 16px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-  }
-  .header-logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .logo-icon {
-    width: 36px; height: 36px;
-    background: var(--gold);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; color: var(--navy); font-size: 16px;
-  }
-  .logo-text {
-    font-family: 'Playfair Display', serif;
-    color: var(--white);
-    font-size: 18px;
-    line-height: 1.2;
-  }
-  .logo-sub { color: var(--gold); font-size: 11px; font-family: 'Inter', sans-serif; font-weight: 400; letter-spacing: 0.5px; }
-  .header-admin-btn {
-    background: transparent;
-    border: 1px solid rgba(201,168,76,0.4);
-    color: var(--gold);
-    padding: 6px 14px;
-    border-radius: 6px;
-    font-size: 12px;
-    cursor: pointer;
-    font-family: 'Inter', sans-serif;
-    transition: all 0.2s;
-  }
-  .header-admin-btn:hover { background: rgba(201,168,76,0.1); }
+  .lang-selector{display:flex;gap:10px;margin-bottom:24px;}
+  .lang-btn{flex:1;padding:12px;border:2px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px;font-weight:500;color:var(--text-muted);transition:all 0.2s;font-family:'Inter',sans-serif;text-align:center;}
+  .lang-btn.active{border-color:var(--gold);color:var(--navy);background:#FBF7EE;}
 
-  /* SCREENS */
-  .screen { display: none; }
-  .screen.active { display: block; }
+  .form-group{margin-bottom:18px;}
+  .form-label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;}
+  .form-label span{color:var(--error);}
+  .form-input,.form-select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;color:var(--text);background:white;transition:border-color 0.2s;outline:none;}
+  .form-input:focus,.form-select:focus{border-color:var(--gold);}
+  .form-hint{font-size:12px;color:var(--text-muted);margin-top:4px;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 
-  .container {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 32px 16px;
-  }
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 28px;border-radius:8px;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;border:none;transition:all 0.2s;}
+  .btn-primary{background:var(--navy);color:white;width:100%;}
+  .btn-primary:hover{background:var(--navy-mid);transform:translateY(-1px);box-shadow:var(--shadow);}
+  .btn-primary:disabled{background:var(--text-muted);cursor:not-allowed;transform:none;box-shadow:none;}
+  .btn-outline{background:white;color:var(--navy);border:1.5px solid var(--border);width:100%;}
+  .btn-outline:hover{border-color:var(--navy);}
 
-  /* CARD */
-  .card {
-    background: var(--white);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 32px;
-  }
-
-  .screen-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 24px;
-    color: var(--navy);
-    margin-bottom: 6px;
-  }
-  .screen-sub {
-    color: var(--text-muted);
-    font-size: 14px;
-    margin-bottom: 28px;
-    line-height: 1.5;
-  }
-
-  /* LANG SELECTOR */
-  .lang-selector {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 24px;
-  }
-  .lang-btn {
-    flex: 1;
-    padding: 12px;
-    border: 2px solid var(--border);
-    border-radius: 8px;
-    background: white;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-muted);
-    transition: all 0.2s;
-    font-family: 'Inter', sans-serif;
-    text-align: center;
-  }
-  .lang-btn.active {
-    border-color: var(--gold);
-    color: var(--navy);
-    background: #FBF7EE;
-  }
-  .lang-btn:hover:not(.active) { border-color: var(--navy-light); color: var(--text); }
-
-  /* FORM */
-  .form-group { margin-bottom: 18px; }
-  .form-label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 6px;
-    letter-spacing: 0.2px;
-  }
-  .form-label span { color: var(--error); }
-  .form-input, .form-select {
-    width: 100%;
-    padding: 11px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    font-size: 14px;
-    font-family: 'Inter', sans-serif;
-    color: var(--text);
-    background: white;
-    transition: border-color 0.2s;
-    outline: none;
-  }
-  .form-input:focus, .form-select:focus { border-color: var(--gold); }
-  .form-input.error { border-color: var(--error); }
-  .form-hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-
-  /* BTN */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 13px 28px;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    font-family: 'Inter', sans-serif;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s;
-    text-decoration: none;
-  }
-  .btn-primary {
-    background: var(--navy);
-    color: white;
-    width: 100%;
-  }
-  .btn-primary:hover { background: var(--navy-mid); transform: translateY(-1px); box-shadow: var(--shadow); }
-  .btn-primary:disabled { background: var(--text-muted); cursor: not-allowed; transform: none; box-shadow: none; }
-  .btn-gold {
-    background: var(--gold);
-    color: var(--navy);
-    width: 100%;
-  }
-  .btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); }
-  .btn-outline {
-    background: white;
-    color: var(--navy);
-    border: 1.5px solid var(--border);
-  }
-  .btn-outline:hover { border-color: var(--navy); }
-
-  /* GROUP SELECT */
-  .groups-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-  .group-card {
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    padding: 16px 12px;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.2s;
-    background: white;
-    position: relative;
-  }
-  .group-card:hover { border-color: var(--navy-light); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-  .group-card.selected { border-color: var(--gold); background: #FBF7EE; }
-  .group-card.disabled { opacity: 0.4; cursor: not-allowed; }
-  .group-card.disabled:hover { transform: none; box-shadow: none; border-color: var(--border); }
-  .group-name { font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
-  .group-label { font-size: 11px; color: var(--text-muted); }
-  .group-count { font-size: 11px; color: var(--gold); font-weight: 600; margin-top: 4px; }
-  .group-done-badge {
-    position: absolute; top: 6px; right: 6px;
-    background: var(--success);
-    color: white;
-    border-radius: 50%;
-    width: 18px; height: 18px;
-    font-size: 10px;
-    display: flex; align-items: center; justify-content: center;
-  }
+  .groups-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:24px;}
+  .group-card{border:2px solid var(--border);border-radius:10px;padding:16px 12px;cursor:pointer;text-align:center;transition:all 0.2s;background:white;position:relative;}
+  .group-card:hover{border-color:var(--navy-light);transform:translateY(-2px);box-shadow:var(--shadow-sm);}
+  .group-card.selected{border-color:var(--gold);background:#FBF7EE;}
+  .group-card.disabled{opacity:0.4;cursor:not-allowed;}
+  .group-card.disabled:hover{transform:none;box-shadow:none;border-color:var(--border);}
+  .group-name{font-size:22px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+  .group-label{font-size:11px;color:var(--text-muted);}
+  .group-count{font-size:11px;color:var(--gold);font-weight:600;margin-top:4px;}
+  .group-done-badge{position:absolute;top:6px;right:6px;background:var(--success);color:white;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center;}
 
   /* QUIZ */
-  .quiz-header {
-    background: var(--navy);
-    color: white;
-    padding: 16px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-  }
-  .quiz-meta { font-size: 13px; color: rgba(255,255,255,0.7); }
-  .quiz-meta strong { color: white; }
-  .timer {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255,255,255,0.1);
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 20px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    min-width: 80px;
-    justify-content: center;
-  }
-  .timer.warning { background: rgba(192,57,43,0.3); color: #FF8A80; }
-  .timer-icon { font-size: 16px; }
+  .quiz-header{background:var(--navy);color:white;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+  .quiz-meta{font-size:13px;color:rgba(255,255,255,0.7);}
+  .quiz-meta strong{color:white;}
+  .timer{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);padding:8px 16px;border-radius:8px;font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;min-width:80px;justify-content:center;}
+  .timer.warning{background:rgba(192,57,43,0.3);color:#FF8A80;}
 
-  .progress-bar-wrap { height: 4px; background: var(--border); }
-  .progress-bar { height: 100%; background: var(--gold); transition: width 0.3s; }
+  /* Навигация по вопросам */
+  .question-nav{display:flex;flex-wrap:wrap;gap:6px;padding:14px 24px;background:white;border-bottom:1px solid var(--border);}
+  .q-nav-btn{width:34px;height:34px;border-radius:7px;border:1.5px solid var(--border);background:white;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;color:var(--text-muted);transition:all 0.15s;display:flex;align-items:center;justify-content:center;}
+  .q-nav-btn:hover{border-color:var(--navy);color:var(--navy);}
+  .q-nav-btn.current{border-color:var(--gold);background:#FBF7EE;color:var(--navy);}
+  .q-nav-btn.answered{border-color:var(--navy);background:var(--navy);color:white;}
 
-  .quiz-body { padding: 28px 24px; }
-  .question-counter {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--gold);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-  .question-product {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-bottom: 12px;
-  }
-  .question-text {
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--navy);
-    line-height: 1.5;
-    margin-bottom: 24px;
-  }
+  .progress-bar-wrap{height:4px;background:var(--border);}
+  .progress-bar{height:100%;background:var(--gold);transition:width 0.3s;}
 
-  .options-list { display: flex; flex-direction: column; gap: 10px; }
-  .option {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 14px 16px;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-    background: white;
-  }
-  .option:hover { border-color: var(--navy-light); background: #F8FAFE; }
-  .option.selected { border-color: var(--navy); background: #EEF2FA; }
-  .option.correct { border-color: var(--success); background: var(--success-bg); }
-  .option.wrong { border-color: var(--error); background: var(--error-bg); }
-  .option.show-correct { border-color: var(--success); background: var(--success-bg); }
-  .option-letter {
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    background: var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700;
-    color: var(--text-muted);
-    flex-shrink: 0;
-    transition: all 0.2s;
-  }
-  .option.selected .option-letter { background: var(--navy); color: white; }
-  .option.correct .option-letter { background: var(--success); color: white; }
-  .option.wrong .option-letter { background: var(--error); color: white; }
-  .option.show-correct .option-letter { background: var(--success); color: white; }
-  .option-text { font-size: 14px; line-height: 1.5; padding-top: 3px; }
+  .quiz-body{padding:28px 24px;}
+  .question-counter{font-size:12px;font-weight:600;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+  .question-product{font-size:12px;color:var(--text-muted);margin-bottom:12px;}
+  .question-text{font-size:17px;font-weight:600;color:var(--navy);line-height:1.5;margin-bottom:24px;}
 
-  .quiz-nav {
-    display: flex;
-    justify-content: flex-end;
-    padding: 16px 24px 24px;
-    border-top: 1px solid var(--border);
-  }
-  .btn-next {
-    background: var(--navy);
-    color: white;
-    padding: 12px 28px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    font-family: 'Inter', sans-serif;
-    transition: all 0.2s;
-  }
-  .btn-next:hover { background: var(--navy-mid); }
-  .btn-next:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
+  .options-list{display:flex;flex-direction:column;gap:10px;}
+  .option{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all 0.15s;background:white;}
+  .option:hover{border-color:var(--navy-light);background:#F8FAFE;}
+  .option.selected{border-color:var(--navy);background:#EEF2FA;}
+  .option-letter{width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--text-muted);flex-shrink:0;transition:all 0.15s;}
+  .option.selected .option-letter{background:var(--navy);color:white;}
+  .option-text{font-size:14px;line-height:1.5;padding-top:3px;}
 
-  /* RESULT */
-  .result-score {
-    text-align: center;
-    padding: 32px 0 24px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 24px;
-  }
-  .score-circle {
-    width: 120px; height: 120px;
-    border-radius: 50%;
-    margin: 0 auto 16px;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    font-weight: 700;
-  }
-  .score-circle.pass { background: var(--success-bg); border: 3px solid var(--success); color: var(--success); }
-  .score-circle.fail { background: var(--error-bg); border: 3px solid var(--error); color: var(--error); }
-  .score-num { font-size: 36px; line-height: 1; }
-  .score-label { font-size: 12px; }
-  .score-verdict { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-  .score-detail { color: var(--text-muted); font-size: 14px; }
+  /* Результат во время теста — нейтральный */
+  .option.result-correct{border-color:var(--success);background:var(--success-bg);}
+  .option.result-wrong{border-color:var(--error);background:var(--error-bg);}
+  .option.result-show{border-color:var(--success);background:var(--success-bg);}
+  .option.result-correct .option-letter{background:var(--success);color:white;}
+  .option.result-wrong .option-letter{background:var(--error);color:white;}
+  .option.result-show .option-letter{background:var(--success);color:white;}
 
-  .result-breakdown { margin-bottom: 24px; }
-  .result-breakdown-title { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .result-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-  }
-  .result-item:last-child { border-bottom: none; }
-  .result-icon { font-size: 16px; flex-shrink: 0; padding-top: 1px; }
-  .result-q { color: var(--text); line-height: 1.4; }
-  .result-a { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
-  .result-a.correct-a { color: var(--success); }
+  .quiz-nav{display:flex;justify-content:space-between;align-items:center;padding:16px 24px 24px;border-top:1px solid var(--border);gap:10px;}
+  .btn-nav{padding:11px 20px;border-radius:8px;font-size:14px;font-weight:600;border:1.5px solid var(--border);background:white;cursor:pointer;font-family:'Inter',sans-serif;color:var(--text);transition:all 0.2s;}
+  .btn-nav:hover{border-color:var(--navy);color:var(--navy);}
+  .btn-nav:disabled{opacity:0.3;cursor:not-allowed;}
+  .btn-finish{background:var(--gold);color:var(--navy);border:none;padding:11px 24px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;}
+  .btn-finish:hover{background:var(--gold-light);}
 
-  .result-actions { display: flex; flex-direction: column; gap: 10px; }
+  /* РЕЗУЛЬТАТ */
+  .result-score{text-align:center;padding:32px 0 24px;border-bottom:1px solid var(--border);margin-bottom:24px;}
+  .score-circle{width:120px;height:120px;border-radius:50%;margin:0 auto 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;}
+  .score-circle.pass{background:var(--success-bg);border:3px solid var(--success);color:var(--success);}
+  .score-circle.fail{background:var(--error-bg);border:3px solid var(--error);color:var(--error);}
+  .score-circle.neutral{background:#EEF2FA;border:3px solid var(--navy);color:var(--navy);}
+  .score-num{font-size:36px;line-height:1;}
+  .score-label-pct{font-size:12px;}
+  .score-verdict{font-size:20px;font-weight:700;margin-bottom:4px;}
+  .score-detail{color:var(--text-muted);font-size:14px;}
+
+  .result-breakdown{margin-bottom:24px;}
+  .result-breakdown-title{font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;}
+  .result-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+  .result-item:last-child{border-bottom:none;}
+  .result-icon{font-size:16px;flex-shrink:0;padding-top:1px;}
+  .result-q{color:var(--text);line-height:1.4;}
+  .result-a{color:var(--text-muted);font-size:12px;margin-top:2px;}
+  .result-a.correct-a{color:var(--success);}
+  .result-actions{display:flex;flex-direction:column;gap:10px;}
 
   /* ADMIN */
-  .admin-login-wrap { max-width: 400px; margin: 0 auto; padding: 40px 16px; }
-  .admin-panel { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
-  .admin-section { background: white; border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 24px; margin-bottom: 20px; }
-  .admin-section-title { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-  .admin-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-  .admin-input {
-    flex: 1;
-    padding: 10px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    font-size: 13px;
-    font-family: 'Inter', sans-serif;
-    outline: none;
-  }
-  .admin-input:focus { border-color: var(--gold); }
-  .btn-sm {
-    padding: 9px 16px;
-    border-radius: 7px;
-    font-size: 13px;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    font-family: 'Inter', sans-serif;
-    white-space: nowrap;
-  }
-  .btn-sm-primary { background: var(--navy); color: white; }
-  .btn-sm-danger { background: var(--error); color: white; }
-  .btn-sm-gold { background: var(--gold); color: var(--navy); }
-  .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .admin-table th { text-align: left; padding: 8px 10px; background: var(--bg); color: var(--text-muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .admin-table td { padding: 10px 10px; border-bottom: 1px solid var(--border); }
-  .admin-table tr:last-child td { border-bottom: none; }
-
-  .badge {
-    display: inline-flex;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 600;
-  }
-  .badge-success { background: var(--success-bg); color: var(--success); }
-  .badge-error { background: var(--error-bg); color: var(--error); }
-
-  .notice {
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  .notice-info { background: #EEF2FA; color: var(--navy-mid); }
-  .notice-warn { background: #FFF8E7; color: #7A5A00; }
-  .notice-error { background: var(--error-bg); color: var(--error); }
-  .notice-success { background: var(--success-bg); color: var(--success); }
-
-  .divider { height: 1px; background: var(--border); margin: 20px 0; }
-
-  .loading {
-    text-align: center;
-    padding: 40px;
-    color: var(--text-muted);
-    font-size: 14px;
-  }
-  .spinner {
-    width: 32px; height: 32px;
-    border: 3px solid var(--border);
-    border-top-color: var(--navy);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 12px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  @media (max-width: 480px) {
-    .card { padding: 20px; }
-    .form-row { grid-template-columns: 1fr; }
-    .quiz-body { padding: 20px 16px; }
-    .quiz-nav { padding: 12px 16px 20px; }
-    .quiz-header { flex-wrap: wrap; }
-  }
+  .admin-login-wrap{max-width:400px;margin:0 auto;padding:40px 16px;}
+  .admin-panel{max-width:860px;margin:0 auto;padding:24px 16px;}
+  .admin-section{background:white;border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:24px;margin-bottom:20px;}
+  .admin-section-title{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:16px;}
+  .admin-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+  .admin-input{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;outline:none;min-width:120px;}
+  .admin-input:focus{border-color:var(--gold);}
+  .btn-sm{padding:9px 16px;border-radius:7px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;}
+  .btn-sm-primary{background:var(--navy);color:white;}
+  .btn-sm-danger{background:var(--error);color:white;}
+  .btn-sm-gold{background:var(--gold);color:var(--navy);}
+  .admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .admin-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .admin-table th{text-align:left;padding:8px 10px;background:var(--bg);color:var(--text-muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;}
+  .admin-table td{padding:10px 10px;border-bottom:1px solid var(--border);}
+  .admin-table tr:last-child td{border-bottom:none;}
+  .badge{display:inline-flex;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;}
+  .badge-success{background:var(--success-bg);color:var(--success);}
+  .badge-error{background:var(--error-bg);color:var(--error);}
+  .badge-neutral{background:#EEF2FA;color:var(--navy);}
+  .notice{padding:12px 16px;border-radius:8px;font-size:13px;display:flex;align-items:flex-start;gap:10px;}
+  .notice-info{background:#EEF2FA;color:var(--navy-mid);}
+  .notice-warn{background:#FFF8E7;color:#7A5A00;}
+  .notice-error{background:var(--error-bg);color:var(--error);}
+  .notice-success{background:var(--success-bg);color:var(--success);}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+  .toggle-row:last-child{border-bottom:none;}
+  .toggle-label{font-size:14px;color:var(--text);}
+  .toggle-sub{font-size:12px;color:var(--text-muted);margin-top:2px;}
+  .toggle{position:relative;width:44px;height:24px;flex-shrink:0;}
+  .toggle input{opacity:0;width:0;height:0;}
+  .toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--border);border-radius:24px;transition:0.3s;}
+  .toggle-slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;}
+  .toggle input:checked+.toggle-slider{background:var(--navy);}
+  .toggle input:checked+.toggle-slider:before{transform:translateX(20px);}
+  .loading{text-align:center;padding:40px;color:var(--text-muted);font-size:14px;}
+  .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @media(max-width:480px){.card{padding:20px;}.form-row{grid-template-columns:1fr;}.quiz-body{padding:20px 16px;}.quiz-nav{padding:12px 16px 20px;}.admin-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <div class="header-logo">
     <div class="logo-icon">S</div>
-    <div class="logo-text">
-      Synergy Pharmco
-      <div class="logo-sub">Платформа тестирования</div>
-    </div>
+    <div class="logo-text">Synergy Pharmco<div class="logo-sub">Платформа тестирования</div></div>
   </div>
   <button class="header-admin-btn" onclick="showAdminLogin()">⚙ Админ</button>
 </div>
 
-<!-- SCREEN 1: ВХОД -->
+<!-- ЭКРАН 1: ВХОД -->
 <div id="screen-login" class="screen active">
   <div class="container">
     <div class="card">
       <h1 class="screen-title" id="login-title">Добро пожаловать</h1>
       <p class="screen-sub" id="login-sub">Заполните данные для начала тестирования</p>
-
-      <!-- Выбор языка -->
       <div class="lang-selector">
-        <button class="lang-btn active" onclick="setLang('ru', this)" id="lang-ru">🇷🇺 Русский</button>
-        <button class="lang-btn" onclick="setLang('uz', this)" id="lang-uz">🇺🇿 O'zbekcha</button>
+        <button class="lang-btn active" onclick="setLang('ru',this)">🇷🇺 Русский</button>
+        <button class="lang-btn" onclick="setLang('uz',this)">🇺🇿 O'zbekcha</button>
       </div>
-
       <div class="form-group">
         <label class="form-label" id="label-fio">ФИО <span>*</span></label>
-        <input class="form-input" id="input-name" type="text" placeholder="Иванов Иван Иванович" autocomplete="name">
+        <input class="form-input" id="input-name" type="text" placeholder="Иванов Иван Иванович">
       </div>
-
       <div class="form-group">
         <label class="form-label" id="label-phone">Номер телефона <span>*</span></label>
         <input class="form-input" id="input-phone" type="tel" placeholder="93 537 12 34" maxlength="12">
         <div class="form-hint" id="hint-phone">Формат: 93 537 12 34</div>
       </div>
-
       <div class="form-row">
         <div class="form-group">
           <label class="form-label" id="label-position">Должность <span>*</span></label>
@@ -517,34 +212,21 @@
           <label class="form-label" id="label-region">Регион <span>*</span></label>
           <select class="form-select" id="input-region">
             <option value="">— выберите —</option>
-            <option>Ташкент</option>
-            <option>Самарканд</option>
-            <option>Бухара</option>
-            <option>Андижан</option>
-            <option>Фергана</option>
-            <option>Наманган</option>
-            <option>Нукус</option>
-            <option>Термез</option>
-            <option>Карши</option>
-            <option>Навои</option>
-            <option>Джизак</option>
-            <option>Гулистан</option>
-            <option>Ургенч</option>
-            <option>Другой</option>
+            <option>Ташкент</option><option>Самарканд</option><option>Бухара</option>
+            <option>Андижан</option><option>Фергана</option><option>Наманган</option>
+            <option>Нукус</option><option>Термез</option><option>Карши</option>
+            <option>Навои</option><option>Джизак</option><option>Гулистан</option>
+            <option>Ургенч</option><option>Другой</option>
           </select>
         </div>
       </div>
-
       <div id="login-notice" style="margin-bottom:16px;display:none;"></div>
-
-      <button class="btn btn-primary" onclick="submitLogin()" id="btn-login">
-        <span id="btn-login-text">Продолжить →</span>
-      </button>
+      <button class="btn btn-primary" onclick="submitLogin()"><span id="btn-login-text">Продолжить →</span></button>
     </div>
   </div>
 </div>
 
-<!-- SCREEN 2: ВЫБОР ГРУППЫ -->
+<!-- ЭКРАН 2: ГРУППЫ -->
 <div id="screen-groups" class="screen">
   <div class="container">
     <div class="card">
@@ -559,7 +241,7 @@
   </div>
 </div>
 
-<!-- SCREEN 3: ТЕСТ -->
+<!-- ЭКРАН 3: ТЕСТ -->
 <div id="screen-quiz" class="screen">
   <div class="quiz-header">
     <div class="quiz-meta">
@@ -568,9 +250,8 @@
     </div>
     <div class="timer" id="timer">⏱ 10:00</div>
   </div>
-  <div class="progress-bar-wrap">
-    <div class="progress-bar" id="progress-bar" style="width:0%"></div>
-  </div>
+  <div class="question-nav" id="question-nav"></div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
   <div class="quiz-body">
     <div class="question-counter" id="question-counter"></div>
     <div class="question-product" id="question-product"></div>
@@ -578,27 +259,29 @@
     <div class="options-list" id="options-list"></div>
   </div>
   <div class="quiz-nav">
-    <button class="btn-next" id="btn-next" onclick="nextQuestion()" disabled>
-      <span id="btn-next-text">Далее →</span>
-    </button>
+    <button class="btn-nav" id="btn-prev" onclick="goToQuestion(state.currentQ-1)">← Назад</button>
+    <button class="btn-finish" onclick="confirmFinish()" id="btn-finish-quiz">Завершить тест</button>
+    <button class="btn-nav" id="btn-next-q" onclick="goToQuestion(state.currentQ+1)">Вперёд →</button>
   </div>
 </div>
 
-<!-- SCREEN 4: РЕЗУЛЬТАТ -->
+<!-- ЭКРАН 4: РЕЗУЛЬТАТ -->
 <div id="screen-result" class="screen">
   <div class="container">
     <div class="card">
       <div class="result-score">
         <div class="score-circle" id="score-circle">
           <div class="score-num" id="score-num"></div>
-          <div class="score-label" id="score-label-pct"></div>
+          <div class="score-label-pct" id="score-label-pct"></div>
         </div>
         <div class="score-verdict" id="score-verdict"></div>
         <div class="score-detail" id="score-detail"></div>
       </div>
-      <div class="result-breakdown">
-        <div class="result-breakdown-title" id="breakdown-title">Разбор ответов</div>
-        <div id="result-items"></div>
+      <div id="result-breakdown-wrap">
+        <div class="result-breakdown">
+          <div class="result-breakdown-title" id="breakdown-title">Разбор ответов</div>
+          <div id="result-items"></div>
+        </div>
       </div>
       <div class="result-actions">
         <button class="btn btn-primary" onclick="goToGroups()" id="btn-another">Пройти другую группу</button>
@@ -608,12 +291,12 @@
   </div>
 </div>
 
-<!-- SCREEN 5: ADMIN LOGIN -->
+<!-- ЭКРАН 5: АДМИН ЛОГИН -->
 <div id="screen-admin-login" class="screen">
   <div class="admin-login-wrap">
     <div class="card">
       <h1 class="screen-title">Администратор</h1>
-      <p class="screen-sub">Введите логин и пароль для входа</p>
+      <p class="screen-sub">Введите логин и пароль</p>
       <div class="form-group">
         <label class="form-label">Логин</label>
         <input class="form-input" id="admin-login-input" type="text" placeholder="admin">
@@ -629,76 +312,95 @@
   </div>
 </div>
 
-<!-- SCREEN 6: ADMIN PANEL -->
+<!-- ЭКРАН 6: АДМИН ПАНЕЛЬ -->
 <div id="screen-admin" class="screen">
   <div class="admin-panel">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
       <h1 class="screen-title">Панель администратора</h1>
-      <button class="btn btn-outline btn-sm" onclick="goToLogin()" style="padding:8px 16px;border-radius:7px;font-size:13px;font-weight:600;border:1.5px solid var(--border);background:white;cursor:pointer;font-family:Inter,sans-serif;">← Выйти</button>
+      <button class="btn-sm btn-sm-primary" onclick="goToLogin()">← Выйти</button>
     </div>
 
-    <!-- Настройки -->
     <div class="admin-section">
-      <div class="admin-section-title">⚙️ Настройки платформы</div>
-
+      <div class="admin-section-title">⚙️ Подключение Google Sheets</div>
       <div class="form-group">
-        <label class="form-label">Ссылка на Google Sheets (ID таблицы)</label>
-        <div class="admin-row">
-          <input class="admin-input" id="admin-sheet-id" type="text" placeholder="1OGdxVfMz9nu0RPjYlZXcYrPa42cVpWpl7c7EVvFG2Mc">
-          <button class="btn-sm btn-sm-gold" onclick="saveSettings()">Сохранить</button>
-        </div>
-        <div class="form-hint">Скопируйте ID из ссылки Google Sheets (между /d/ и /edit)</div>
+        <label class="form-label">ID таблицы Google Sheets</label>
+        <input class="admin-input" id="admin-sheet-id" type="text" placeholder="1OGdxVfMz9nu0RPjYlZXcYrPa42cVpWpl7c7EVvFG2Mc" style="width:100%">
+        <div class="form-hint">Часть ссылки между /d/ и /edit</div>
       </div>
-
       <div class="form-group">
-        <label class="form-label">URL Apps Script (для сохранения результатов)</label>
-        <div class="admin-row">
-          <input class="admin-input" id="admin-script-url" type="text" placeholder="https://script.google.com/macros/s/.../exec">
-        </div>
-        <div class="form-hint">Вставьте URL после публикации Apps Script</div>
+        <label class="form-label">URL Apps Script</label>
+        <input class="admin-input" id="admin-script-url" type="text" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%">
+        <div class="form-hint">Ссылка после публикации Apps Script</div>
       </div>
-
-      <div class="form-group">
-        <label class="form-label">Время на тест (минут)</label>
-        <div class="admin-row">
-          <input class="admin-input" id="admin-timer" type="number" value="10" min="1" max="60" style="max-width:100px;">
-          <span style="font-size:13px;color:var(--text-muted);">минут на группу</span>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Количество вопросов в тесте</label>
-        <div class="admin-row">
-          <input class="admin-input" id="admin-q-count" type="number" value="10" min="1" max="50" style="max-width:100px;">
-          <span style="font-size:13px;color:var(--text-muted);">вопросов (если меньше в базе — берём все)</span>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Логин администратора</label>
-        <div class="admin-row">
-          <input class="admin-input" id="admin-login-change" type="text" placeholder="admin">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Пароль администратора</label>
-        <div class="admin-row">
-          <input class="admin-input" id="admin-pass-change" type="password" placeholder="новый пароль">
-        </div>
-      </div>
-
-      <button class="btn-sm btn-sm-primary" onclick="saveSettings()" style="margin-top:4px;">💾 Сохранить все настройки</button>
-      <div id="settings-saved" style="display:none;margin-top:10px;" class="notice notice-success">✓ Настройки сохранены</div>
     </div>
 
-    <!-- Снятие блокировки -->
+    <div class="admin-section">
+      <div class="admin-section-title">📝 Параметры теста</div>
+      <div class="admin-grid">
+        <div class="form-group">
+          <label class="form-label">Время на тест (минут)</label>
+          <input class="admin-input" id="admin-timer" type="number" value="10" min="1" max="60" style="width:100%">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Количество вопросов</label>
+          <input class="admin-input" id="admin-q-count" type="number" value="10" min="1" max="50" style="width:100%">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Порог прохождения (%)</label>
+          <input class="admin-input" id="admin-threshold" type="number" value="70" min="1" max="100" style="width:100%">
+          <div class="form-hint">Например: 70 = нужно 70% правильных</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">👁 Что показывать тестируемому</div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Показывать результат (балл)</div>
+          <div class="toggle-sub">Тестируемый видит сколько набрал очков</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="show-score" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Показывать оценку (пройдено/не пройдено)</div>
+          <div class="toggle-sub">Тестируемый видит прошёл он или нет</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="show-verdict" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Показывать разбор ответов</div>
+          <div class="toggle-sub">Тестируемый видит где ошибся и правильные ответы</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="show-breakdown" checked><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">🔐 Доступ администратора</div>
+      <div class="admin-grid">
+        <div class="form-group">
+          <label class="form-label">Логин</label>
+          <input class="admin-input" id="admin-login-change" type="text" style="width:100%">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Новый пароль</label>
+          <input class="admin-input" id="admin-pass-change" type="password" placeholder="оставьте пустым чтобы не менять" style="width:100%">
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-sm btn-sm-gold" onclick="saveSettings()" style="width:100%;padding:13px;font-size:15px;margin-bottom:20px;">💾 Сохранить все настройки</button>
+    <div id="settings-saved" style="display:none;margin-bottom:16px;" class="notice notice-success">✓ Настройки сохранены</div>
+
     <div class="admin-section">
       <div class="admin-section-title">🔓 Снятие блокировки повторного прохождения</div>
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Введите номер телефона пользователя чтобы сбросить его результаты и разрешить повторное прохождение</p>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Введите номер телефона пользователя чтобы разрешить повторное прохождение</p>
       <div class="admin-row">
         <input class="admin-input" id="reset-phone" type="tel" placeholder="93 537 12 34">
-        <select class="admin-input" id="reset-group" style="max-width:120px;">
+        <select class="admin-input" id="reset-group" style="max-width:140px;">
           <option value="">Все группы</option>
         </select>
         <button class="btn-sm btn-sm-danger" onclick="resetUser()">Сбросить</button>
@@ -706,717 +408,538 @@
       <div id="reset-result" style="margin-top:10px;display:none;"></div>
     </div>
 
-    <!-- Статистика -->
     <div class="admin-section">
       <div class="admin-section-title">📊 Последние результаты</div>
-      <div id="admin-results-table">
-        <div class="loading"><div class="spinner"></div>Загрузка...</div>
-      </div>
+      <button class="btn-sm btn-sm-primary" onclick="loadAdminResults()" style="margin-bottom:14px;">🔄 Обновить</button>
+      <div id="admin-results-table"><div class="loading"><div class="spinner"></div>Загрузка...</div></div>
     </div>
   </div>
 </div>
 
 <script>
 // ============================================================
-// КОНФИГУРАЦИЯ (сохраняется в localStorage)
+// КОНФИГ
 // ============================================================
 const DEFAULT_CONFIG = {
-  sheetId: '1OGdxVfMz9nu0RPjYlZXcYrPa42cVpWpl7c7EVvFG2Mc',
-  scriptUrl: '',
-  timerMinutes: 10,
-  questionCount: 10,
-  adminLogin: 'admin',
-  adminPass: 'synergy2026'
+  sheetId:'1OGdxVfMz9nu0RPjYlZXcYrPa42cVpWpl7c7EVvFG2Mc',
+  scriptUrl:'',
+  timerMinutes:10,
+  questionCount:10,
+  threshold:70,
+  showScore:true,
+  showVerdict:true,
+  showBreakdown:true,
+  adminLogin:'admin',
+  adminPass:'synergy2026'
 };
 
-function getConfig() {
-  try {
-    const saved = localStorage.getItem('sp_config');
-    return saved ? { ...DEFAULT_CONFIG, ...JSON.parse(saved) } : { ...DEFAULT_CONFIG };
-  } catch { return { ...DEFAULT_CONFIG }; }
+function getConfig(){
+  try{const s=localStorage.getItem('sp_config');return s?{...DEFAULT_CONFIG,...JSON.parse(s)}:{...DEFAULT_CONFIG};}
+  catch{return{...DEFAULT_CONFIG};}
 }
-
-function saveConfig(cfg) {
-  localStorage.setItem('sp_config', JSON.stringify(cfg));
-}
+function saveConfig(cfg){localStorage.setItem('sp_config',JSON.stringify(cfg));}
 
 // ============================================================
 // СОСТОЯНИЕ
 // ============================================================
-let state = {
-  lang: 'ru',
-  user: null,
-  allQuestions: [],
-  availableGroups: [],
-  selectedGroup: null,
-  quizQuestions: [],
-  currentQ: 0,
-  answers: [],
-  timer: null,
-  timeLeft: 0,
-  sessionId: null,
-  completedGroups: {}  // phone -> [group1, group2, ...]
+let state={
+  lang:'ru',user:null,allQuestions:[],
+  availableGroups:[],selectedGroup:null,
+  quizQuestions:[],currentQ:0,
+  answers:[],timer:null,timeLeft:0,
+  sessionId:null,completedGroups:[]
 };
 
 // ============================================================
 // ПЕРЕВОДЫ
 // ============================================================
-const T = {
-  ru: {
-    welcome: 'Добро пожаловать',
-    loginSub: 'Заполните данные для начала тестирования',
-    labelFio: 'ФИО',
-    labelPhone: 'Номер телефона',
-    labelPosition: 'Должность',
-    labelRegion: 'Регион',
-    hintPhone: 'Формат: 93 537 12 34',
-    btnContinue: 'Продолжить →',
-    chooseGroup: 'Выберите группу',
-    groupSub: 'Выберите товарную группу для прохождения теста',
-    btnStart: 'Начать тест →',
-    question: 'Вопрос',
-    of: 'из',
-    препарат: 'Препарат',
-    btnNext: 'Далее →',
-    btnFinish: 'Завершить тест',
-    pass: '✅ Тест пройден!',
-    fail: '❌ Тест не пройден',
-    breakdown: 'Разбор ответов',
-    yourAnswer: 'Ваш ответ',
-    correctAnswer: 'Правильный ответ',
-    btnAnother: 'Пройти другую группу',
-    btnLogout: 'Выйти',
-    errFio: 'Введите ФИО',
-    errPhone: 'Введите номер телефона (например: 93 537 12 34)',
-    errPosition: 'Выберите должность',
-    errRegion: 'Выберите регион',
-    loadingQ: 'Загрузка вопросов...',
-    noGroups: 'Нет доступных групп. Проверьте настройки.',
-    groupDone: 'Уже пройдено',
-    questions: 'вопросов',
-    timeUp: 'Время вышло! Тест завершён.',
-    saving: 'Сохранение результатов...',
-    saved: 'Результаты сохранены',
-    saveErr: 'Ошибка сохранения. Результаты записаны локально.',
-    positions: ['— выберите —','МП (Мед. представитель)','РМ (Региональный менеджер)','Кандидат в МП','Другое'],
-    posVals: ['','МП','РМ','Кандидат','Другое'],
+const T={
+  ru:{
+    welcome:'Добро пожаловать',loginSub:'Заполните данные для начала тестирования',
+    labelFio:'ФИО',labelPhone:'Номер телефона',labelPosition:'Должность',labelRegion:'Регион',
+    hintPhone:'Формат: 93 537 12 34',btnContinue:'Продолжить →',
+    chooseGroup:'Выберите группу',groupSub:'Выберите товарную группу для прохождения теста',
+    btnStart:'Начать тест →',question:'Вопрос',of:'из',product:'Препарат',
+    btnFinish:'Завершить тест',pass:'✅ Тест пройден!',fail:'❌ Тест не пройден',
+    result:'Результат',breakdown:'Разбор ответов',
+    yourAnswer:'Ваш ответ',correctAnswer:'Правильный ответ',
+    btnAnother:'Пройти другую группу',btnLogout:'Выйти',
+    errFio:'Введите ФИО',errPhone:'Введите номер телефона',
+    errPosition:'Выберите должность',errRegion:'Выберите регион',
+    loadingQ:'Загрузка вопросов...',noGroups:'Нет доступных групп.',
+    groupDone:'Пройдено',questions:'вопросов',timeUp:'Время вышло!',
+    confirmFinish:'Вы ответили на {answered} из {total} вопросов.\nЗавершить тест?',
+    skipped:'Пропущен',back:'← Назад',forward:'Вперёд →',
+    scoreHidden:'Результат засчитан',
   },
-  uz: {
-    welcome: 'Xush kelibsiz',
-    loginSub: 'Test boshlash uchun ma\'lumotlaringizni kiriting',
-    labelFio: 'F.I.Sh.',
-    labelPhone: 'Telefon raqami',
-    labelPosition: 'Lavozim',
-    labelRegion: 'Viloyat',
-    hintPhone: 'Format: 93 537 12 34',
-    btnContinue: 'Davom etish →',
-    chooseGroup: 'Guruhni tanlang',
-    groupSub: 'Test o\'tish uchun tovar guruhini tanlang',
-    btnStart: 'Testni boshlash →',
-    question: 'Savol',
-    of: '/',
-    препарат: 'Dori',
-    btnNext: 'Keyingi →',
-    btnFinish: 'Testni tugatish',
-    pass: '✅ Test muvaffaqiyatli topshirildi!',
-    fail: '❌ Test topshirilmadi',
-    breakdown: 'Javoblar tahlili',
-    yourAnswer: 'Sizning javobingiz',
-    correctAnswer: 'To\'g\'ri javob',
-    btnAnother: 'Boshqa guruhni tanlash',
-    btnLogout: 'Chiqish',
-    errFio: 'F.I.Sh. kiriting',
-    errPhone: 'Telefon raqamini kiriting (masalan: 93 537 12 34)',
-    errPosition: 'Lavozimni tanlang',
-    errRegion: 'Viloyatni tanlang',
-    loadingQ: 'Savollar yuklanmoqda...',
-    noGroups: 'Mavjud guruhlar yo\'q. Sozlamalarni tekshiring.',
-    groupDone: 'Topshirilgan',
-    questions: 'savol',
-    timeUp: 'Vaqt tugadi! Test yakunlandi.',
-    saving: 'Natijalar saqlanmoqda...',
-    saved: 'Natijalar saqlandi',
-    saveErr: 'Saqlashda xatolik. Natijalar mahalliy saqlanди.',
-    positions: ['— tanlang —','Tibbiy vakil (TV)','Mintaqaviy menejer (MM)','TV nomzodi','Boshqa'],
-    posVals: ['','МП','РМ','Кандидат','Другое'],
+  uz:{
+    welcome:'Xush kelibsiz',loginSub:'Test boshlash uchun ma\'lumotlaringizni kiriting',
+    labelFio:'F.I.Sh.',labelPhone:'Telefon raqami',labelPosition:'Lavozim',labelRegion:'Viloyat',
+    hintPhone:'Format: 93 537 12 34',btnContinue:'Davom etish →',
+    chooseGroup:'Guruhni tanlang',groupSub:'Test o\'tish uchun tovar guruhini tanlang',
+    btnStart:'Testni boshlash →',question:'Savol',of:'/',product:'Dori',
+    btnFinish:'Testni tugatish',pass:'✅ Test muvaffaqiyatli topshirildi!',fail:'❌ Test topshirilmadi',
+    result:'Natija',breakdown:'Javoblar tahlili',
+    yourAnswer:'Sizning javobingiz',correctAnswer:'To\'g\'ri javob',
+    btnAnother:'Boshqa guruhni tanlash',btnLogout:'Chiqish',
+    errFio:'F.I.Sh. kiriting',errPhone:'Telefon raqamini kiriting',
+    errPosition:'Lavozimni tanlang',errRegion:'Viloyatni tanlang',
+    loadingQ:'Savollar yuklanmoqda...',noGroups:'Mavjud guruhlar yo\'q.',
+    groupDone:'Topshirilgan',questions:'savol',timeUp:'Vaqt tugadi!',
+    confirmFinish:'{answered} ta / {total} ta savolga javob berdingiz.\nTestni tugatish?',
+    skipped:'O\'tkazildi',back:'← Orqaga',forward:'Oldinga →',
+    scoreHidden:'Natija qabul qilindi',
   }
 };
-
-function t(key) { return T[state.lang][key] || T['ru'][key] || key; }
+function t(key,vars){
+  let s=T[state.lang][key]||T.ru[key]||key;
+  if(vars)Object.keys(vars).forEach(k=>s=s.replace('{'+k+'}',vars[k]));
+  return s;
+}
 
 // ============================================================
 // ЯЗЫК
 // ============================================================
-function setLang(lang, btn) {
-  state.lang = lang;
-  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+function setLang(lang,btn){
+  state.lang=lang;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   applyLang();
 }
-
-function applyLang() {
-  const lang = state.lang;
-  document.getElementById('login-title').textContent = t('welcome');
-  document.getElementById('login-sub').textContent = t('loginSub');
-  document.getElementById('label-fio').innerHTML = t('labelFio') + ' <span>*</span>';
-  document.getElementById('label-phone').innerHTML = t('labelPhone') + ' <span>*</span>';
-  document.getElementById('label-position').innerHTML = t('labelPosition') + ' <span>*</span>';
-  document.getElementById('label-region').innerHTML = t('labelRegion') + ' <span>*</span>';
-  document.getElementById('hint-phone').textContent = t('hintPhone');
-  document.getElementById('btn-login-text').textContent = t('btnContinue');
-  document.getElementById('input-name').placeholder = lang === 'uz' ? 'Abdullayev Abdulla Abdullayevich' : 'Иванов Иван Иванович';
-
-  // Обновляем select должности
-  const posSelect = document.getElementById('input-position');
-  const curVal = posSelect.value;
-  posSelect.innerHTML = '';
-  t('positions').forEach((p, i) => {
-    const opt = document.createElement('option');
-    opt.value = t('posVals')[i];
-    opt.textContent = p;
-    posSelect.appendChild(opt);
-  });
-  posSelect.value = curVal;
+function applyLang(){
+  document.getElementById('login-title').textContent=t('welcome');
+  document.getElementById('login-sub').textContent=t('loginSub');
+  document.getElementById('label-fio').innerHTML=t('labelFio')+' <span>*</span>';
+  document.getElementById('label-phone').innerHTML=t('labelPhone')+' <span>*</span>';
+  document.getElementById('label-position').innerHTML=t('labelPosition')+' <span>*</span>';
+  document.getElementById('label-region').innerHTML=t('labelRegion')+' <span>*</span>';
+  document.getElementById('hint-phone').textContent=t('hintPhone');
+  document.getElementById('btn-login-text').textContent=t('btnContinue');
+  document.getElementById('input-name').placeholder=state.lang==='uz'?'Abdullayev Abdulla':'Иванов Иван Иванович';
 }
 
 // ============================================================
 // ЛОГИН
 // ============================================================
-function submitLogin() {
-  const name = document.getElementById('input-name').value.trim();
-  const phone = document.getElementById('input-phone').value.trim().replace(/\s+/g,'').replace(/[^0-9]/g,'');
-  const position = document.getElementById('input-position').value;
-  const region = document.getElementById('input-region').value;
-
-  // Валидация
-  let errors = [];
-  if (!name || name.length < 3) errors.push(t('errFio'));
-  if (!phone || phone.length < 8) errors.push(t('errPhone'));
-  if (!position) errors.push(t('errPosition'));
-  if (!region) errors.push(t('errRegion'));
-
-  const notice = document.getElementById('login-notice');
-  if (errors.length) {
-    notice.style.display = 'block';
-    notice.innerHTML = `<div class="notice notice-error">⚠️ ${errors.join('<br>')}</div>`;
-    return;
-  }
-  notice.style.display = 'none';
-
-  // Форматируем телефон
-  const phoneFormatted = phone.replace(/(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4');
-
-  state.user = { name, phone: phoneFormatted, position, region };
-  state.completedGroups = getCompletedGroups(phoneFormatted);
-
+function submitLogin(){
+  const name=document.getElementById('input-name').value.trim();
+  const rawPhone=document.getElementById('input-phone').value.trim().replace(/\D/g,'');
+  const position=document.getElementById('input-position').value;
+  const region=document.getElementById('input-region').value;
+  let errors=[];
+  if(name.length<3)errors.push(t('errFio'));
+  if(rawPhone.length<8)errors.push(t('errPhone'));
+  if(!position)errors.push(t('errPosition'));
+  if(!region)errors.push(t('errRegion'));
+  const notice=document.getElementById('login-notice');
+  if(errors.length){notice.style.display='block';notice.innerHTML=`<div class="notice notice-error">⚠️ ${errors.join('<br>')}</div>`;return;}
+  notice.style.display='none';
+  const phone=rawPhone.replace(/(\d{2})(\d{3})(\d{2})(\d{2})/,'$1 $2 $3 $4');
+  state.user={name,phone,position,region};
+  state.completedGroups=getCompletedGroups(phone);
   showGroups();
 }
 
 // ============================================================
-// ПРОЙДЕННЫЕ ГРУППЫ (localStorage)
+// ПРОЙДЕННЫЕ ГРУППЫ
 // ============================================================
-function getCompletedGroups(phone) {
-  try {
-    const key = 'sp_done_' + phone.replace(/\s/g,'');
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : [];
-  } catch { return []; }
+function getCompletedGroups(phone){
+  try{const d=localStorage.getItem('sp_done_'+phone.replace(/\s/g,''));return d?JSON.parse(d):[];}
+  catch{return[];}
 }
-
-function markGroupDone(phone, group) {
-  try {
-    const key = 'sp_done_' + phone.replace(/\s/g,'');
-    const done = getCompletedGroups(phone);
-    if (!done.includes(group)) done.push(group);
-    localStorage.setItem(key, JSON.stringify(done));
-    state.completedGroups = done;
-  } catch {}
+function markGroupDone(phone,group){
+  try{
+    const key='sp_done_'+phone.replace(/\s/g,'');
+    const done=getCompletedGroups(phone);
+    if(!done.includes(group))done.push(group);
+    localStorage.setItem(key,JSON.stringify(done));
+    state.completedGroups=done;
+  }catch{}
 }
-
-function resetUserGroups(phone, group) {
-  try {
-    const key = 'sp_done_' + phone.replace(/\s/g,'');
-    if (group) {
-      const done = getCompletedGroups(phone).filter(g => g !== group);
-      localStorage.setItem(key, JSON.stringify(done));
-    } else {
-      localStorage.removeItem(key);
-    }
-  } catch {}
+function resetUserGroups(phone,group){
+  try{
+    const key='sp_done_'+phone.replace(/\s/g,'');
+    if(group){const done=getCompletedGroups(phone).filter(g=>g!==group);localStorage.setItem(key,JSON.stringify(done));}
+    else localStorage.removeItem(key);
+  }catch{}
 }
 
 // ============================================================
-// ЗАГРУЗКА ВОПРОСОВ из Google Sheets
+// ЗАГРУЗКА ВОПРОСОВ
 // ============================================================
-async function loadQuestions() {
-  const cfg = getConfig();
-  const sheetId = cfg.sheetId;
-  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=questions`;
-
-  const resp = await fetch(url);
-  const text = await resp.text();
-  // Google возвращает JSONP — вырезаем JSON
-  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/)[1]);
-  const rows = json.table.rows;
-  const cols = json.table.cols.map(c => c.label);
-
-  return rows.map(row => {
-    const obj = {};
-    cols.forEach((col, i) => {
-      obj[col] = row.c[i] ? (row.c[i].v !== null ? String(row.c[i].v) : '') : '';
-    });
+async function loadQuestions(){
+  const cfg=getConfig();
+  const url=`https://docs.google.com/spreadsheets/d/${cfg.sheetId}/gviz/tq?tqx=out:json&sheet=questions`;
+  const resp=await fetch(url);
+  const text=await resp.text();
+  const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/)[1]);
+  const cols=json.table.cols.map(c=>c.label);
+  return json.table.rows.map(row=>{
+    const obj={};
+    cols.forEach((col,i)=>{obj[col]=row.c[i]?(row.c[i].v!==null?String(row.c[i].v):''):'';});
     return obj;
-  }).filter(r => r.question || r.question_ru); // совместимость
+  }).filter(r=>r.question||r.question_ru);
 }
 
 // ============================================================
 // ЭКРАН ГРУПП
 // ============================================================
-async function showGroups() {
+async function showGroups(){
   showScreen('screen-groups');
-  document.getElementById('groups-title').textContent = t('chooseGroup');
-  document.getElementById('groups-sub').textContent = t('groupSub');
-  document.getElementById('btn-start-text').textContent = t('btnStart');
-  document.getElementById('btn-start-quiz').disabled = true;
-  state.selectedGroup = null;
-
-  const grid = document.getElementById('groups-grid');
-  grid.innerHTML = `<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>${t('loadingQ')}</div>`;
-
-  try {
-    state.allQuestions = await loadQuestions();
-    const groups = [...new Set(state.allQuestions.map(q => q.group || q.group_id))].filter(Boolean).sort();
-    state.availableGroups = groups;
-
-    if (!groups.length) {
-      grid.innerHTML = `<div class="notice notice-warn" style="grid-column:1/-1">⚠️ ${t('noGroups')}</div>`;
-      return;
-    }
-
+  document.getElementById('groups-title').textContent=t('chooseGroup');
+  document.getElementById('groups-sub').textContent=t('groupSub');
+  document.getElementById('btn-start-text').textContent=t('btnStart');
+  document.getElementById('btn-start-quiz').disabled=true;
+  state.selectedGroup=null;
+  const grid=document.getElementById('groups-grid');
+  grid.innerHTML=`<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>${t('loadingQ')}</div>`;
+  try{
+    state.allQuestions=await loadQuestions();
+    const groups=[...new Set(state.allQuestions.map(q=>q.group))].filter(Boolean).sort();
+    state.availableGroups=groups;
     // Заполняем select в админке
-    const resetSel = document.getElementById('reset-group');
-    resetSel.innerHTML = '<option value="">Все группы</option>';
-    groups.forEach(g => {
-      const opt = document.createElement('option');
-      opt.value = g; opt.textContent = `Группа ${g}`;
-      resetSel.appendChild(opt);
-    });
-
-    grid.innerHTML = '';
-    groups.forEach(group => {
-      const qCount = state.allQuestions.filter(q => {
-        const qGroup = q.group || q.group_id;
-        const qLang = q.language || q.lang || 'ru';
-        return qGroup === group && qLang === state.lang;
-      }).length;
-
-      const totalCount = state.allQuestions.filter(q => (q.group || q.group_id) === group).length;
-      const isDone = state.completedGroups.includes(group);
-      const hasQuestions = qCount > 0 || totalCount > 0;
-      const displayCount = qCount || totalCount;
-
-      const card = document.createElement('div');
-      card.className = 'group-card' + (isDone ? ' disabled' : '') + (!hasQuestions ? ' disabled' : '');
-      card.dataset.group = group;
-      card.innerHTML = `
-        ${isDone ? '<div class="group-done-badge">✓</div>' : ''}
-        <div class="group-name">${group}</div>
-        <div class="group-label">${isDone ? t('groupDone') : 'Группа'}</div>
-        <div class="group-count">${displayCount} ${t('questions')}</div>
-      `;
-      if (!isDone && hasQuestions) {
-        card.onclick = () => selectGroup(group, card);
-      }
+    const sel=document.getElementById('reset-group');
+    sel.innerHTML='<option value="">Все группы</option>';
+    groups.forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent='Группа '+g;sel.appendChild(o);});
+    grid.innerHTML='';
+    groups.forEach(group=>{
+      const qLang=state.allQuestions.filter(q=>q.group===group&&q.language===state.lang).length;
+      const qAll=state.allQuestions.filter(q=>q.group===group).length;
+      const count=qLang||qAll;
+      const isDone=state.completedGroups.includes(group);
+      const card=document.createElement('div');
+      card.className='group-card'+(isDone?' disabled':'');
+      card.dataset.group=group;
+      card.innerHTML=`${isDone?'<div class="group-done-badge">✓</div>':''}<div class="group-name">${group}</div><div class="group-label">${isDone?t('groupDone'):'Группа'}</div><div class="group-count">${count} ${t('questions')}</div>`;
+      if(!isDone)card.onclick=()=>selectGroup(group,card);
       grid.appendChild(card);
     });
-  } catch(e) {
-    grid.innerHTML = `<div class="notice notice-error" style="grid-column:1/-1">❌ Ошибка загрузки: ${e.message}</div>`;
+  }catch(e){
+    grid.innerHTML=`<div class="notice notice-error" style="grid-column:1/-1">❌ Ошибка загрузки: ${e.message}</div>`;
   }
 }
-
-function selectGroup(group, card) {
-  document.querySelectorAll('.group-card').forEach(c => c.classList.remove('selected'));
+function selectGroup(group,card){
+  document.querySelectorAll('.group-card').forEach(c=>c.classList.remove('selected'));
   card.classList.add('selected');
-  state.selectedGroup = group;
-  document.getElementById('btn-start-quiz').disabled = false;
+  state.selectedGroup=group;
+  document.getElementById('btn-start-quiz').disabled=false;
 }
 
 // ============================================================
-// ЗАПУСК ТЕСТА
+// СТАРТ ТЕСТА
 // ============================================================
-function startQuiz() {
-  if (!state.selectedGroup) return;
-
-  // Фильтруем вопросы по группе и языку
-  let pool = state.allQuestions.filter(q => {
-    const qGroup = q.group || q.group_id;
-    const qLang = q.language || q.lang || 'ru';
-    return qGroup === state.selectedGroup && qLang === state.lang;
-  });
-
-  // Если на выбранном языке нет — берём любые
-  if (!pool.length) {
-    pool = state.allQuestions.filter(q => (q.group || q.group_id) === state.selectedGroup);
-  }
-
-  if (!pool.length) {
-    document.getElementById('groups-notice').innerHTML = '<div class="notice notice-warn">⚠️ Нет вопросов для этой группы</div>';
-    return;
-  }
-
-  // Рандомная выборка
-  const cfg = getConfig();
-  const count = Math.min(cfg.questionCount, pool.length);
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
-  state.quizQuestions = shuffled.slice(0, count);
-  state.currentQ = 0;
-  state.answers = new Array(count).fill(null);
-  state.sessionId = 'SPH-' + new Date().toISOString().replace(/[-:T.Z]/g,'').slice(0,14) + '-' + Math.floor(Math.random()*9000+1000);
-
+function startQuiz(){
+  if(!state.selectedGroup)return;
+  const cfg=getConfig();
+  let pool=state.allQuestions.filter(q=>q.group===state.selectedGroup&&q.language===state.lang);
+  if(!pool.length)pool=state.allQuestions.filter(q=>q.group===state.selectedGroup);
+  if(!pool.length){document.getElementById('groups-notice').innerHTML='<div class="notice notice-warn">⚠️ Нет вопросов</div>';return;}
+  const count=Math.min(cfg.questionCount,pool.length);
+  state.quizQuestions=[...pool].sort(()=>Math.random()-0.5).slice(0,count);
+  state.currentQ=0;
+  state.answers=new Array(count).fill(null);
+  state.sessionId='SPH-'+new Date().toISOString().replace(/[-:T.Z]/g,'').slice(0,14)+'-'+Math.floor(Math.random()*9000+1000);
   showScreen('screen-quiz');
-  document.getElementById('quiz-group-label').innerHTML = `<strong>Группа ${state.selectedGroup}</strong>`;
-  document.getElementById('quiz-user-label').textContent = state.user.name + ' · ' + state.user.position;
-
+  document.getElementById('quiz-group-label').innerHTML=`<strong>Группа ${state.selectedGroup}</strong>`;
+  document.getElementById('quiz-user-label').textContent=state.user.name+' · '+state.user.position;
   startTimer();
   renderQuestion();
+  renderNav();
 }
 
 // ============================================================
 // ТАЙМЕР
 // ============================================================
-function startTimer() {
-  const cfg = getConfig();
-  state.timeLeft = cfg.timerMinutes * 60;
+function startTimer(){
+  const cfg=getConfig();
+  state.timeLeft=cfg.timerMinutes*60;
   updateTimerDisplay();
-  if (state.timer) clearInterval(state.timer);
-  state.timer = setInterval(() => {
+  if(state.timer)clearInterval(state.timer);
+  state.timer=setInterval(()=>{
     state.timeLeft--;
     updateTimerDisplay();
-    if (state.timeLeft <= 0) {
-      clearInterval(state.timer);
-      finishQuiz(true);
-    }
-  }, 1000);
+    if(state.timeLeft<=0){clearInterval(state.timer);finishQuiz(true);}
+  },1000);
+}
+function updateTimerDisplay(){
+  const m=Math.floor(state.timeLeft/60).toString().padStart(2,'0');
+  const s=(state.timeLeft%60).toString().padStart(2,'0');
+  const el=document.getElementById('timer');
+  el.textContent=`⏱ ${m}:${s}`;
+  el.className='timer'+(state.timeLeft<=60?' warning':'');
 }
 
-function updateTimerDisplay() {
-  const m = Math.floor(state.timeLeft / 60).toString().padStart(2,'0');
-  const s = (state.timeLeft % 60).toString().padStart(2,'0');
-  const el = document.getElementById('timer');
-  el.textContent = `⏱ ${m}:${s}`;
-  el.className = 'timer' + (state.timeLeft <= 60 ? ' warning' : '');
+// ============================================================
+// НАВИГАЦИЯ ПО ВОПРОСАМ
+// ============================================================
+function renderNav(){
+  const nav=document.getElementById('question-nav');
+  nav.innerHTML='';
+  state.quizQuestions.forEach((_,i)=>{
+    const btn=document.createElement('button');
+    btn.className='q-nav-btn'+(i===state.currentQ?' current':'')+(state.answers[i]!==null?' answered':'');
+    btn.textContent=i+1;
+    btn.onclick=()=>goToQuestion(i);
+    nav.appendChild(btn);
+  });
+}
+function goToQuestion(idx){
+  if(idx<0||idx>=state.quizQuestions.length)return;
+  state.currentQ=idx;
+  renderQuestion();
+  renderNav();
 }
 
 // ============================================================
 // РЕНДЕР ВОПРОСА
 // ============================================================
-function renderQuestion() {
-  const q = state.quizQuestions[state.currentQ];
-  const total = state.quizQuestions.length;
-  const idx = state.currentQ;
+function renderQuestion(){
+  const q=state.quizQuestions[state.currentQ];
+  const total=state.quizQuestions.length;
+  const idx=state.currentQ;
+  document.getElementById('question-counter').textContent=`${t('question')} ${idx+1} ${t('of')} ${total}`;
+  document.getElementById('question-product').textContent=q.product?`${t('product')}: ${q.product}`:'';
+  document.getElementById('question-text').textContent=q.question||q.question_ru||'';
+  document.getElementById('progress-bar').style.width=((idx)/total*100)+'%';
 
-  document.getElementById('question-counter').textContent = `${t('question')} ${idx+1} ${t('of')} ${total}`;
-  document.getElementById('question-product').textContent = q.product ? `${t('препарат')}: ${q.product}` : '';
-  document.getElementById('question-text').textContent = q.question || q.question_ru || '';
-
-  const pct = ((idx) / total) * 100;
-  document.getElementById('progress-bar').style.width = pct + '%';
-
-  // Варианты ответов
-  const letters = ['A','B','C','D','E'];
-  const optsList = document.getElementById('options-list');
-  optsList.innerHTML = '';
-
-  letters.forEach(letter => {
-    const text = q[letter] || q[letter.toLowerCase()] || '';
-    if (!text) return;
-
-    const div = document.createElement('div');
-    div.className = 'option';
-    div.dataset.letter = letter;
-    div.innerHTML = `<div class="option-letter">${letter}</div><div class="option-text">${text}</div>`;
-    div.onclick = () => selectOption(letter, div);
+  const letters=['A','B','C','D','E'];
+  const optsList=document.getElementById('options-list');
+  optsList.innerHTML='';
+  letters.forEach(letter=>{
+    const text=q[letter]||'';
+    if(!text)return;
+    const div=document.createElement('div');
+    const isSelected=state.answers[idx]===letter;
+    div.className='option'+(isSelected?' selected':'');
+    div.dataset.letter=letter;
+    div.innerHTML=`<div class="option-letter">${letter}</div><div class="option-text">${text}</div>`;
+    div.onclick=()=>selectOption(letter);
     optsList.appendChild(div);
   });
 
-  // Кнопка
-  const isLast = idx === total - 1;
-  const btnNext = document.getElementById('btn-next');
-  btnNext.textContent = isLast ? t('btnFinish') : t('btnNext');
-  btnNext.disabled = state.answers[idx] === null;
+  // Кнопки навигации
+  document.getElementById('btn-prev').disabled=idx===0;
+  document.getElementById('btn-next-q').disabled=idx===total-1;
+  document.getElementById('btn-prev').textContent=t('back');
+  document.getElementById('btn-next-q').textContent=t('forward');
+  document.getElementById('btn-finish-quiz').textContent=t('btnFinish');
 }
 
-function selectOption(letter, div) {
-  if (state.answers[state.currentQ] !== null) return; // уже ответил
-
-  state.answers[state.currentQ] = letter;
-  document.getElementById('btn-next').disabled = false;
-
-  const correct = (state.quizQuestions[state.currentQ].correct || '').toUpperCase().trim();
-
-  document.querySelectorAll('.option').forEach(opt => {
-    const l = opt.dataset.letter;
-    if (l === letter && l === correct) opt.className = 'option correct';
-    else if (l === letter && l !== correct) opt.className = 'option wrong';
-    else if (l === correct) opt.className = 'option show-correct';
-    else opt.className = 'option';
-    opt.style.cursor = 'default';
-    opt.onclick = null;
+function selectOption(letter){
+  state.answers[state.currentQ]=letter;
+  // Обновляем визуально без показа правильного ответа
+  document.querySelectorAll('.option').forEach(opt=>{
+    opt.className='option'+(opt.dataset.letter===letter?' selected':'');
   });
-}
-
-function nextQuestion() {
-  if (state.answers[state.currentQ] === null) return;
-  state.currentQ++;
-  if (state.currentQ >= state.quizQuestions.length) {
-    finishQuiz(false);
-  } else {
-    renderQuestion();
-  }
+  renderNav();
 }
 
 // ============================================================
 // ЗАВЕРШЕНИЕ
 // ============================================================
-async function finishQuiz(timeUp) {
-  if (state.timer) clearInterval(state.timer);
+function confirmFinish(){
+  const answered=state.answers.filter(a=>a!==null).length;
+  const total=state.quizQuestions.length;
+  if(confirm(t('confirmFinish',{answered,total}))){
+    if(state.timer)clearInterval(state.timer);
+    finishQuiz(false);
+  }
+}
 
-  const questions = state.quizQuestions;
-  const answers = state.answers;
-  const total = questions.length;
-  let score = 0;
-  const details = [];
+async function finishQuiz(timeUp){
+  if(state.timer)clearInterval(state.timer);
+  const cfg=getConfig();
+  const questions=state.quizQuestions;
+  const answers=state.answers;
+  const total=questions.length;
+  let score=0;
+  const details=[];
 
-  questions.forEach((q, i) => {
-    const correct = (q.correct || '').toUpperCase().trim();
-    const userAns = answers[i] || '';
-    const isCorrect = userAns === correct;
-    if (isCorrect) score++;
-
-    const getLetter = (letter) => q[letter] || q[letter.toLowerCase()] || '';
-    details.push({
-      question: q.question || q.question_ru || '',
-      product: q.product || '',
-      correct,
-      correctText: getLetter(correct),
-      userAns,
-      userText: userAns ? getLetter(userAns) : '—',
-      isCorrect
-    });
+  questions.forEach((q,i)=>{
+    const correct=(q.correct||'').toUpperCase().trim();
+    const userAns=answers[i]||'';
+    const isCorrect=userAns===correct;
+    if(isCorrect)score++;
+    const getLetter=l=>q[l]||'';
+    details.push({question:q.question||q.question_ru||'',product:q.product||'',correct,correctText:getLetter(correct),userAns,userText:userAns?getLetter(userAns):t('skipped'),isCorrect});
   });
 
-  const pct = Math.round((score / total) * 100);
-  const passed = pct >= 70;
+  const pct=Math.round((score/total)*100);
+  const passed=pct>=cfg.threshold;
 
-  // Показываем результат
   showScreen('screen-result');
 
-  const circle = document.getElementById('score-circle');
-  circle.className = 'score-circle ' + (passed ? 'pass' : 'fail');
-  document.getElementById('score-num').textContent = pct + '%';
-  document.getElementById('score-label-pct').textContent = `${score}/${total}`;
-  document.getElementById('score-verdict').textContent = passed ? t('pass') : t('fail');
-  document.getElementById('score-detail').textContent = `${score} ${t('of')} ${total} · ${state.selectedGroup} · ${state.user.name}`;
-  document.getElementById('breakdown-title').textContent = t('breakdown');
-  document.getElementById('btn-another').textContent = t('btnAnother');
-  document.getElementById('btn-logout').textContent = t('btnLogout');
+  // Показываем результат в зависимости от настроек
+  const circle=document.getElementById('score-circle');
+  if(cfg.showScore&&cfg.showVerdict){
+    circle.className='score-circle '+(passed?'pass':'fail');
+    document.getElementById('score-num').textContent=pct+'%';
+    document.getElementById('score-label-pct').textContent=`${score}/${total}`;
+    document.getElementById('score-verdict').textContent=passed?t('pass'):t('fail');
+    document.getElementById('score-detail').textContent=`${score} ${t('of')} ${total} · Группа ${state.selectedGroup}`;
+  } else if(cfg.showScore&&!cfg.showVerdict){
+    circle.className='score-circle neutral';
+    document.getElementById('score-num').textContent=pct+'%';
+    document.getElementById('score-label-pct').textContent=`${score}/${total}`;
+    document.getElementById('score-verdict').textContent=t('result');
+    document.getElementById('score-detail').textContent=`Группа ${state.selectedGroup} · ${state.user.name}`;
+  } else {
+    circle.className='score-circle neutral';
+    document.getElementById('score-num').textContent='✓';
+    document.getElementById('score-label-pct').textContent='';
+    document.getElementById('score-verdict').textContent=t('scoreHidden');
+    document.getElementById('score-detail').textContent=`Группа ${state.selectedGroup} · ${state.user.name}`;
+  }
 
   // Разбор ответов
-  const itemsEl = document.getElementById('result-items');
-  itemsEl.innerHTML = details.map(d => `
-    <div class="result-item">
-      <div class="result-icon">${d.isCorrect ? '✅' : '❌'}</div>
-      <div>
-        <div class="result-q">${d.question}</div>
-        ${!d.isCorrect ? `<div class="result-a">Ваш: ${d.userText}</div><div class="result-a correct-a">Верно: ${d.correctText}</div>` : `<div class="result-a correct-a">${d.correctText}</div>`}
-      </div>
-    </div>
-  `).join('');
+  const breakdownWrap=document.getElementById('result-breakdown-wrap');
+  if(cfg.showBreakdown){
+    breakdownWrap.style.display='block';
+    document.getElementById('breakdown-title').textContent=t('breakdown');
+    document.getElementById('result-items').innerHTML=details.map(d=>`
+      <div class="result-item">
+        <div class="result-icon">${d.isCorrect?'✅':'❌'}</div>
+        <div>
+          <div class="result-q">${d.question}</div>
+          ${!d.isCorrect?`<div class="result-a">${t('yourAnswer')}: ${d.userText}</div><div class="result-a correct-a">${t('correctAnswer')}: ${d.correctText}</div>`:`<div class="result-a correct-a">${d.correctText}</div>`}
+        </div>
+      </div>`).join('');
+  } else {
+    breakdownWrap.style.display='none';
+  }
 
-  // Отмечаем группу пройденной
-  markGroupDone(state.user.phone, state.selectedGroup);
+  document.getElementById('btn-another').textContent=t('btnAnother');
+  document.getElementById('btn-logout').textContent=t('btnLogout');
 
-  // Сохраняем в Google Sheets
-  await saveResults(details, score, total, pct, passed, timeUp);
+  markGroupDone(state.user.phone,state.selectedGroup);
+  await saveResults(details,score,total,pct,passed,timeUp);
 }
 
 // ============================================================
-// СОХРАНЕНИЕ РЕЗУЛЬТАТОВ
+// СОХРАНЕНИЕ В GOOGLE SHEETS
 // ============================================================
-async function saveResults(details, score, total, pct, passed, timeUp) {
-  const cfg = getConfig();
-  if (!cfg.scriptUrl) return; // Apps Script не настроен
-
-  const now = new Date().toLocaleString('ru-RU');
-
-  const payload = {
-    action: 'saveResult',
-    session_id: state.sessionId,
-    timestamp: now,
-    full_name: state.user.name,
-    phone: state.user.phone,
-    position: state.user.position,
-    region: state.user.region,
-    language: state.lang,
-    group: state.selectedGroup,
-    score,
-    total,
-    percent: pct + '%',
-    passed: passed ? 'Да' : 'Нет',
-    time_up: timeUp ? 'Да' : 'Нет',
-    details: details.map(d => ({
-      product: d.product,
-      question: d.question,
-      correct_answer: d.correct + ': ' + d.correctText,
-      user_answer: d.userAns + ': ' + d.userText,
-      is_correct: d.isCorrect ? 'Да' : 'Нет'
+async function saveResults(details,score,total,pct,passed,timeUp){
+  const cfg=getConfig();
+  if(!cfg.scriptUrl)return;
+  const now=new Date().toLocaleString('ru-RU');
+  const payload={
+    action:'saveResult',
+    session_id:state.sessionId,timestamp:now,
+    full_name:state.user.name,phone:state.user.phone,
+    position:state.user.position,region:state.user.region,
+    language:state.lang,group:state.selectedGroup,
+    score,total,percent:pct+'%',
+    passed:passed?'Да':'Нет',time_up:timeUp?'Да':'Нет',
+    details:details.map(d=>({
+      product:d.product,question:d.question,
+      correct_answer:d.correct+': '+d.correctText,
+      user_answer:d.userAns?d.userAns+': '+d.userText:'Пропущен',
+      is_correct:d.isCorrect?'Да':'Нет'
     }))
   };
-
-  try {
-    await fetch(cfg.scriptUrl, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-  } catch(e) {
-    console.warn('Ошибка сохранения:', e);
-  }
+  try{
+    await fetch(cfg.scriptUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  }catch(e){console.warn('Ошибка сохранения:',e);}
 }
 
 // ============================================================
 // НАВИГАЦИЯ
 // ============================================================
-function goToGroups() {
-  showScreen('screen-groups');
-  showGroups();
-}
-
-function goToLogin() {
-  showScreen('screen-login');
-}
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0,0);
-}
+function goToGroups(){showScreen('screen-groups');showGroups();}
+function goToLogin(){showScreen('screen-login');}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
 
 // ============================================================
 // АДМИНКА
 // ============================================================
-function showAdminLogin() {
-  showScreen('screen-admin-login');
+function showAdminLogin(){showScreen('screen-admin-login');}
+function checkAdminLogin(){
+  const cfg=getConfig();
+  const login=document.getElementById('admin-login-input').value;
+  const pass=document.getElementById('admin-pass-input').value;
+  const err=document.getElementById('admin-login-error');
+  if(login===cfg.adminLogin&&pass===cfg.adminPass){err.style.display='none';showAdminPanel();}
+  else{err.style.display='block';err.innerHTML='<div class="notice notice-error">❌ Неверный логин или пароль</div>';}
 }
-
-function checkAdminLogin() {
-  const cfg = getConfig();
-  const login = document.getElementById('admin-login-input').value;
-  const pass = document.getElementById('admin-pass-input').value;
-  const err = document.getElementById('admin-login-error');
-
-  if (login === cfg.adminLogin && pass === cfg.adminPass) {
-    err.style.display = 'none';
-    showAdminPanel();
-  } else {
-    err.style.display = 'block';
-    err.innerHTML = '<div class="notice notice-error">❌ Неверный логин или пароль</div>';
-  }
-}
-
-function showAdminPanel() {
+function showAdminPanel(){
   showScreen('screen-admin');
-  const cfg = getConfig();
-  document.getElementById('admin-sheet-id').value = cfg.sheetId;
-  document.getElementById('admin-script-url').value = cfg.scriptUrl;
-  document.getElementById('admin-timer').value = cfg.timerMinutes;
-  document.getElementById('admin-q-count').value = cfg.questionCount;
-  document.getElementById('admin-login-change').value = cfg.adminLogin;
-  document.getElementById('admin-pass-change').value = '';
+  const cfg=getConfig();
+  document.getElementById('admin-sheet-id').value=cfg.sheetId;
+  document.getElementById('admin-script-url').value=cfg.scriptUrl;
+  document.getElementById('admin-timer').value=cfg.timerMinutes;
+  document.getElementById('admin-q-count').value=cfg.questionCount;
+  document.getElementById('admin-threshold').value=cfg.threshold;
+  document.getElementById('show-score').checked=cfg.showScore;
+  document.getElementById('show-verdict').checked=cfg.showVerdict;
+  document.getElementById('show-breakdown').checked=cfg.showBreakdown;
+  document.getElementById('admin-login-change').value=cfg.adminLogin;
+  document.getElementById('admin-pass-change').value='';
   loadAdminResults();
 }
-
-function saveSettings() {
-  const cfg = getConfig();
-  cfg.sheetId = document.getElementById('admin-sheet-id').value.trim() || cfg.sheetId;
-  cfg.scriptUrl = document.getElementById('admin-script-url').value.trim();
-  cfg.timerMinutes = parseInt(document.getElementById('admin-timer').value) || 10;
-  cfg.questionCount = parseInt(document.getElementById('admin-q-count').value) || 10;
-  const newLogin = document.getElementById('admin-login-change').value.trim();
-  const newPass = document.getElementById('admin-pass-change').value.trim();
-  if (newLogin) cfg.adminLogin = newLogin;
-  if (newPass) cfg.adminPass = newPass;
+function saveSettings(){
+  const cfg=getConfig();
+  cfg.sheetId=document.getElementById('admin-sheet-id').value.trim()||cfg.sheetId;
+  cfg.scriptUrl=document.getElementById('admin-script-url').value.trim();
+  cfg.timerMinutes=parseInt(document.getElementById('admin-timer').value)||10;
+  cfg.questionCount=parseInt(document.getElementById('admin-q-count').value)||10;
+  cfg.threshold=parseInt(document.getElementById('admin-threshold').value)||70;
+  cfg.showScore=document.getElementById('show-score').checked;
+  cfg.showVerdict=document.getElementById('show-verdict').checked;
+  cfg.showBreakdown=document.getElementById('show-breakdown').checked;
+  const newLogin=document.getElementById('admin-login-change').value.trim();
+  const newPass=document.getElementById('admin-pass-change').value.trim();
+  if(newLogin)cfg.adminLogin=newLogin;
+  if(newPass)cfg.adminPass=newPass;
   saveConfig(cfg);
-
-  const saved = document.getElementById('settings-saved');
-  saved.style.display = 'flex';
-  setTimeout(() => saved.style.display = 'none', 3000);
+  const saved=document.getElementById('settings-saved');
+  saved.style.display='flex';
+  setTimeout(()=>saved.style.display='none',3000);
 }
-
-function resetUser() {
-  const phone = document.getElementById('reset-phone').value.trim();
-  const group = document.getElementById('reset-group').value;
-  const result = document.getElementById('reset-result');
-
-  if (!phone) {
-    result.style.display = 'block';
-    result.innerHTML = '<div class="notice notice-warn">⚠️ Введите номер телефона</div>';
-    return;
-  }
-
-  resetUserGroups(phone, group || null);
-  result.style.display = 'block';
-  result.innerHTML = `<div class="notice notice-success">✓ Блокировка снята для ${phone}${group ? ' (группа '+group+')' : ' (все группы)'}</div>`;
+function resetUser(){
+  const phone=document.getElementById('reset-phone').value.trim();
+  const group=document.getElementById('reset-group').value;
+  const result=document.getElementById('reset-result');
+  if(!phone){result.style.display='block';result.innerHTML='<div class="notice notice-warn">⚠️ Введите номер телефона</div>';return;}
+  resetUserGroups(phone,group||null);
+  result.style.display='block';
+  result.innerHTML=`<div class="notice notice-success">✓ Блокировка снята для ${phone}${group?' (группа '+group+')':' (все группы)'}</div>`;
 }
-
-async function loadAdminResults() {
-  const el = document.getElementById('admin-results-table');
-  el.innerHTML = '<div class="loading"><div class="spinner"></div>Загрузка...</div>';
-
-  const cfg = getConfig();
-  try {
-    const url = `https://docs.google.com/spreadsheets/d/${cfg.sheetId}/gviz/tq?tqx=out:json&sheet=results`;
-    const resp = await fetch(url);
-    const text = await resp.text();
-    const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/)[1]);
-    const rows = json.table.rows;
-    const cols = json.table.cols.map(c => c.label);
-
-    if (!rows || !rows.length) {
-      el.innerHTML = '<div class="notice notice-info">ℹ️ Результатов пока нет</div>';
-      return;
-    }
-
-    const last20 = rows.slice(-20).reverse();
-    el.innerHTML = `<table class="admin-table">
-      <thead><tr>
-        <th>Дата</th><th>ФИО</th><th>Телефон</th><th>Должность</th><th>Группа</th><th>Результат</th>
-      </tr></thead>
-      <tbody>
-        ${last20.map(row => {
-          const get = (name) => { const i = cols.indexOf(name); return row.c[i] ? (row.c[i].v || '') : ''; };
-          const pct = get('percent');
-          const passed = get('passed') === 'Да';
-          return `<tr>
-            <td>${get('timestamp')}</td>
-            <td>${get('full_name')}</td>
-            <td>${get('phone')}</td>
-            <td>${get('position')}</td>
-            <td>${get('group')}</td>
-            <td><span class="badge ${passed ? 'badge-success' : 'badge-error'}">${pct} ${passed ? '✓' : '✗'}</span></td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-    </table>`;
-  } catch(e) {
-    el.innerHTML = `<div class="notice notice-info">ℹ️ Настройте Apps Script для просмотра результатов. ${e.message}</div>`;
+async function loadAdminResults(){
+  const el=document.getElementById('admin-results-table');
+  el.innerHTML='<div class="loading"><div class="spinner"></div>Загрузка...</div>';
+  const cfg=getConfig();
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${cfg.sheetId}/gviz/tq?tqx=out:json&sheet=results`;
+    const resp=await fetch(url);
+    const text=await resp.text();
+    const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/)[1]);
+    const rows=json.table.rows;
+    const cols=json.table.cols.map(c=>c.label);
+    if(!rows||!rows.length){el.innerHTML='<div class="notice notice-info">ℹ️ Результатов пока нет</div>';return;}
+    const last20=rows.slice(-20).reverse();
+    const get=(row,name)=>{const i=cols.indexOf(name);return row.c[i]?(row.c[i].v||''):'';}
+    el.innerHTML=`<div style="overflow-x:auto"><table class="admin-table">
+      <thead><tr><th>Дата</th><th>ФИО</th><th>Телефон</th><th>Должность</th><th>Регион</th><th>Группа</th><th>Язык</th><th>Результат</th></tr></thead>
+      <tbody>${last20.map(row=>{
+        const pct=get(row,'percent');
+        const passed=get(row,'passed')==='Да';
+        return`<tr>
+          <td>${get(row,'timestamp')}</td>
+          <td>${get(row,'full_name')}</td>
+          <td>${get(row,'phone')}</td>
+          <td>${get(row,'position')}</td>
+          <td>${get(row,'region')}</td>
+          <td>${get(row,'group')}</td>
+          <td>${get(row,'language')}</td>
+          <td><span class="badge ${passed?'badge-success':'badge-error'}">${pct} ${passed?'✓':'✗'}</span></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+  }catch(e){
+    el.innerHTML=`<div class="notice notice-info">ℹ️ Вставьте URL Apps Script в настройках для просмотра результатов.</div>`;
   }
 }
 
-// ============================================================
-// INIT
-// ============================================================
 applyLang();
 </script>
 </body>
