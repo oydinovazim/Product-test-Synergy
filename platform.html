@@ -610,7 +610,7 @@ async function showGroups(){
       const card=document.createElement('div');
       card.className='group-card'+(isDone?' disabled':'');
       card.dataset.group=group;
-      card.innerHTML=`${isDone?'<div class="group-done-badge">✓</div>':''}<div class="group-name">${group}</div><div class="group-label">${isDone?t('groupDone'):'Группа'}</div><div class="group-count">${count} ${t('questions')}</div>`;
+      card.innerHTML=`${isDone?'<div class="group-done-badge">✓</div>':''}<div class="group-name">${group}</div><div class="group-label">${isDone?t('groupDone'):'Группа'}</div>`;
       if(!isDone)card.onclick=()=>selectGroup(group,card);
       grid.appendChild(card);
     });
@@ -838,7 +838,7 @@ async function saveResults(details,score,total,pct,passed,timeUp){
     }))
   };
   try{
-    await fetch(cfg.scriptUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    await fetch(cfg.scriptUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
   }catch(e){console.warn('Ошибка сохранения:',e);}
 }
 
