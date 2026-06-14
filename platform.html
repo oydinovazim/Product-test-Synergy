@@ -343,6 +343,21 @@
     </div>
 
     <div class="admin-section">
+      <div class="admin-section-title">📋 Список товарных групп</div>
+      <div class="form-group">
+        <label class="form-label">Группы (через запятую, в нужном порядке отображения)</label>
+        <input class="admin-input" id="admin-groups" type="text" placeholder="А1, А2, Б, Б2, В, С" style="width:100%">
+        <div class="form-hint">Эти группы будут показаны тестируемому. Если для группы нет вопросов на выбранном языке — она будет видна, но недоступна (с пометкой «Тестов нет»)</div>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">📊 Сводка по базе вопросов</div>
+      <button class="btn-sm btn-sm-primary" onclick="loadGroupsSummary()" style="margin-bottom:14px;">🔄 Обновить</button>
+      <div id="groups-summary-table"><div class="loading"><div class="spinner"></div>Загрузка...</div></div>
+    </div>
+
+    <div class="admin-section">
       <div class="admin-section-title">📝 Параметры теста</div>
       <div class="admin-grid">
         <div class="form-group">
@@ -431,6 +446,7 @@
 const DEFAULT_CONFIG = {
   sheetId:'1OGdxVfMz9nu0RPjYlZXcYrPa42cVpWpl7c7EVvFG2Mc',
   scriptUrl:'',
+  groups:['А1','А2','Б','Б2','В','С'],
   timerMinutes:10,
   questionCount:10,
   threshold:70,
@@ -476,6 +492,7 @@ const T={
     errPosition:'Выберите должность',errRegion:'Выберите регион',
     loadingQ:'Загрузка вопросов...',noGroups:'Нет доступных групп.',
     groupDone:'Пройдено',questions:'вопросов',timeUp:'Время вышло!',
+    noTests:'Тестов нет',groupLabel:'Группа',
     confirmFinish:'Вы ответили на {answered} из {total} вопросов.\nЗавершить тест?',
     skipped:'Пропущен',back:'← Назад',forward:'Вперёд →',
     scoreHidden:'Результат засчитан',
@@ -496,6 +513,7 @@ const T={
     errPosition:'Lavozimni tanlang',errRegion:'Viloyatni tanlang',
     loadingQ:'Savollar yuklanmoqda...',noGroups:'Mavjud guruhlar yo\'q.',
     groupDone:'Topshirilgan',questions:'savol',timeUp:'Vaqt tugadi!',
+    noTests:'Testlar yo\'q',groupLabel:'Guruh',
     confirmFinish:'{answered} ta / {total} ta savolga javob berdingiz.\nTestni tugatish?',
     skipped:'O\'tkazildi',back:'← Orqaga',forward:'Oldinga →',
     scoreHidden:'Natija qabul qilindi',
@@ -602,28 +620,42 @@ async function showGroups(){
   document.getElementById('groups-sub').textContent=t('groupSub');
   document.getElementById('btn-start-text').textContent=t('btnStart');
   document.getElementById('btn-start-quiz').disabled=true;
+  document.getElementById('groups-notice').innerHTML='';
   state.selectedGroup=null;
   const grid=document.getElementById('groups-grid');
   grid.innerHTML=`<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>${t('loadingQ')}</div>`;
   try{
     state.allQuestions=await loadQuestions();
-    const groups=[...new Set(state.allQuestions.map(q=>q.group))].filter(Boolean).sort();
+    const cfg=getConfig();
+    let groups=(cfg.groups&&cfg.groups.length)?cfg.groups:[...new Set(state.allQuestions.map(q=>q.group))].filter(Boolean).sort();
     state.availableGroups=groups;
-    // Заполняем select в админке
+
+    // Заполняем select в админке (все группы из конфига, независимо от наличия вопросов)
     const sel=document.getElementById('reset-group');
     sel.innerHTML='<option value="">Все группы</option>';
     groups.forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent='Группа '+g;sel.appendChild(o);});
+
     grid.innerHTML='';
     groups.forEach(group=>{
-      const qLang=state.allQuestions.filter(q=>q.group===group&&q.language===state.lang).length;
-      const qAll=state.allQuestions.filter(q=>q.group===group).length;
-      const count=qLang||qAll;
+      const count=state.allQuestions.filter(q=>q.group===group&&q.language===state.lang).length;
       const isDone=state.completedGroups.includes(group);
+      const hasQuestions=count>0;
+
       const card=document.createElement('div');
-      card.className='group-card'+(isDone?' disabled':'');
+      let labelText;
+      if(!hasQuestions){
+        card.className='group-card disabled';
+        labelText=t('noTests');
+      } else if(isDone){
+        card.className='group-card disabled';
+        labelText=t('groupDone');
+      } else {
+        card.className='group-card';
+        labelText=t('groupLabel');
+      }
       card.dataset.group=group;
-      card.innerHTML=`${isDone?'<div class="group-done-badge">✓</div>':''}<div class="group-name">${group}</div><div class="group-label">${isDone?t('groupDone'):'Группа'}</div>`;
-      if(!isDone)card.onclick=()=>selectGroup(group,card);
+      card.innerHTML=`${isDone&&hasQuestions?'<div class="group-done-badge">✓</div>':''}<div class="group-name">${group}</div><div class="group-label">${labelText}</div>`;
+      if(hasQuestions&&!isDone)card.onclick=()=>selectGroup(group,card);
       grid.appendChild(card);
     });
   }catch(e){
@@ -643,9 +675,8 @@ function selectGroup(group,card){
 function startQuiz(){
   if(!state.selectedGroup)return;
   const cfg=getConfig();
-  let pool=state.allQuestions.filter(q=>q.group===state.selectedGroup&&q.language===state.lang);
-  if(!pool.length)pool=state.allQuestions.filter(q=>q.group===state.selectedGroup);
-  if(!pool.length){document.getElementById('groups-notice').innerHTML='<div class="notice notice-warn">⚠️ Нет вопросов</div>';return;}
+  const pool=state.allQuestions.filter(q=>q.group===state.selectedGroup&&q.language===state.lang);
+  if(!pool.length){document.getElementById('groups-notice').innerHTML=`<div class="notice notice-warn">⚠️ ${t('noTests')}</div>`;return;}
   const count=Math.min(cfg.questionCount,pool.length);
   state.quizQuestions=[...pool].sort(()=>Math.random()-0.5).slice(0,count);
   state.currentQ=0;
@@ -889,6 +920,7 @@ function showAdminPanel(){
   const cfg=getConfig();
   document.getElementById('admin-sheet-id').value=cfg.sheetId;
   document.getElementById('admin-script-url').value=cfg.scriptUrl;
+  document.getElementById('admin-groups').value=(cfg.groups||[]).join(', ');
   document.getElementById('admin-timer').value=cfg.timerMinutes;
   document.getElementById('admin-q-count').value=cfg.questionCount;
   document.getElementById('admin-threshold').value=cfg.threshold;
@@ -898,11 +930,13 @@ function showAdminPanel(){
   document.getElementById('admin-login-change').value=cfg.adminLogin;
   document.getElementById('admin-pass-change').value='';
   loadAdminResults();
+  loadGroupsSummary();
 }
 function saveSettings(){
   const cfg=getConfig();
   cfg.sheetId=document.getElementById('admin-sheet-id').value.trim()||cfg.sheetId;
   cfg.scriptUrl=document.getElementById('admin-script-url').value.trim();
+  cfg.groups=document.getElementById('admin-groups').value.split(',').map(g=>g.trim()).filter(Boolean);
   cfg.timerMinutes=parseInt(document.getElementById('admin-timer').value)||10;
   cfg.questionCount=parseInt(document.getElementById('admin-q-count').value)||10;
   cfg.threshold=parseInt(document.getElementById('admin-threshold').value)||70;
@@ -927,6 +961,46 @@ function resetUser(){
   result.style.display='block';
   result.innerHTML=`<div class="notice notice-success">✓ Блокировка снята для ${phone}${group?' (группа '+group+')':' (все группы)'}</div>`;
 }
+async function loadGroupsSummary(){
+  const el=document.getElementById('groups-summary-table');
+  el.innerHTML='<div class="loading"><div class="spinner"></div>Загрузка...</div>';
+  try{
+    const all=await loadQuestions();
+    const cfg=getConfig();
+    const configGroups=(cfg.groups||[]);
+    const dataGroups=[...new Set(all.map(q=>q.group))].filter(Boolean);
+    // Объединяем: сначала группы из конфига (в заданном порядке), затем группы из данных, которых нет в конфиге
+    const extra=dataGroups.filter(g=>!configGroups.includes(g));
+    const groups=[...configGroups,...extra];
+
+    if(!groups.length){el.innerHTML='<div class="notice notice-info">ℹ️ Список групп пуст</div>';return;}
+
+    const rows=groups.map(g=>{
+      const ru=all.filter(q=>q.group===g&&q.language==='ru').length;
+      const uz=all.filter(q=>q.group===g&&q.language==='uz').length;
+      const total=all.filter(q=>q.group===g).length;
+      const notInConfig=!configGroups.includes(g);
+      return{group:g,ru,uz,total,notInConfig};
+    });
+
+    el.innerHTML=`<div style="overflow-x:auto"><table class="admin-table">
+      <thead><tr><th>Группа</th><th>RU</th><th>UZ</th><th>Всего</th><th></th></tr></thead>
+      <tbody>${rows.map(r=>`
+        <tr>
+          <td><strong>${r.group}</strong></td>
+          <td>${r.ru>0?r.ru:'<span class="badge badge-error">0</span>'}</td>
+          <td>${r.uz>0?r.uz:'<span class="badge badge-error">0</span>'}</td>
+          <td>${r.total}</td>
+          <td>${r.notInConfig?'<span class="badge badge-neutral">не в списке групп</span>':''}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table></div>
+    <div class="form-hint" style="margin-top:10px;">Красным — нет вопросов на этом языке. «Не в списке групп» — группа есть в таблице вопросов, но не добавлена в список выше.</div>`;
+  }catch(e){
+    el.innerHTML=`<div class="notice notice-error">❌ Ошибка загрузки: ${e.message}</div>`;
+  }
+}
+
 async function loadAdminResults(){
   const el=document.getElementById('admin-results-table');
   el.innerHTML='<div class="loading"><div class="spinner"></div>Загрузка...</div>';
