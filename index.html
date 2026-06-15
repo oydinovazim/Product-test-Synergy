@@ -170,7 +170,7 @@
   .loading{text-align:center;padding:40px;color:var(--text-muted);font-size:14px;}
   .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
   @keyframes spin{to{transform:rotate(360deg);}}
-  @media(max-width:480px){.card{padding:20px;}.form-row{grid-template-columns:1fr;}.quiz-body{padding:20px 16px;}.quiz-nav{padding:12px 16px 20px;}.admin-grid{grid-template-columns:1fr;}.quiz-header{padding:12px 16px;}.quiz-header-actions{width:100%;justify-content:space-between;}.timer{font-size:16px;padding:6px 12px;min-width:64px;}.btn-decline{font-size:11px;padding:6px 10px;}.btn-finish-top{font-size:12px;padding:7px 14px;}}
+  @media(max-width:480px){.card{padding:20px;}.form-row{grid-template-columns:1fr;}.quiz-body{padding:20px 16px;}.quiz-nav{padding:12px 16px 20px;}.admin-grid{grid-template-columns:1fr;}.quiz-header{padding:12px 16px;}.quiz-header-actions{width:100%;justify-content:space-between;}.timer{font-size:16px;padding:6px 12px;min-width:64px;}.btn-decline{font-size:11px;padding:6px 10px;}.btn-finish-top{font-size:12px;padding:7px 14px;}.header{padding:12px 16px;gap:8px;}.logo-text{font-size:15px;}.logo-icon{width:30px;height:30px;font-size:14px;}.header-admin-btn{font-size:11px;padding:5px 10px;}.question-nav{padding:10px 16px;gap:5px;}.q-nav-btn{width:30px;height:30px;font-size:12px;}.question-text{font-size:15px;}.option{padding:12px 14px;}.option-text{font-size:13px;}}
 </style>
 </head>
 <body>
@@ -180,7 +180,7 @@
     <div class="logo-icon">S</div>
     <div class="logo-text">Synergy Pharmco<div class="logo-sub">Платформа тестирования</div></div>
   </div>
-  <button class="header-admin-btn" onclick="showAdminLogin()">⚙ Админ</button>
+  <button class="header-admin-btn" id="header-admin-btn" onclick="showAdminLogin()">⚙ Админ</button>
 </div>
 
 <!-- ЭКРАН 1: ВХОД -->
@@ -190,8 +190,8 @@
       <h1 class="screen-title" id="login-title">Добро пожаловать</h1>
       <p class="screen-sub" id="login-sub">Заполните данные для начала тестирования</p>
       <div class="lang-selector">
-        <button class="lang-btn active" onclick="setLang('ru',this)">🇷🇺 Русский</button>
-        <button class="lang-btn" onclick="setLang('uz',this)">🇺🇿 O'zbekcha</button>
+        <button class="lang-btn" onclick="setLang('ru',this)">🇷🇺 Русский</button>
+        <button class="lang-btn active" onclick="setLang('uz',this)">🇺🇿 O'zbekcha</button>
       </div>
       <div class="form-group">
         <label class="form-label" id="label-fio">ФИО <span>*</span></label>
@@ -467,7 +467,7 @@ function saveConfig(cfg){localStorage.setItem('sp_config',JSON.stringify(cfg));}
 // СОСТОЯНИЕ
 // ============================================================
 let state={
-  lang:'ru',user:null,allQuestions:[],
+  lang:'uz',user:null,allQuestions:[],
   availableGroups:[],selectedGroup:null,
   quizQuestions:[],currentQ:0,
   answers:[],timer:null,timeLeft:0,
@@ -933,7 +933,7 @@ async function saveResults(details,score,total,pct,passed,timeUp){
 // ============================================================
 function goToGroups(){showScreen('screen-groups');showGroups();}
 function goToLogin(){showScreen('screen-login');}
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.getElementById('header-admin-btn').style.display=(id==='screen-login')?'':'none';window.scrollTo(0,0);}
 
 // ============================================================
 // АДМИНКА
@@ -1052,7 +1052,13 @@ function renderGroupsTable(dataGroups){
     const ru=all.filter(q=>q.group===name&&q.language==='ru').length;
     const uz=all.filter(q=>q.group===name&&q.language==='uz').length;
     const total=all.filter(q=>q.group===name).length;
+    const isFirst=i===0;
+    const isLast=i===state.groupsEditRows.length-1;
     return`<tr>
+      <td style="white-space:nowrap;padding:6px 4px;">
+        <button class="btn-sm" style="padding:4px 8px;background:var(--bg);color:var(--text);${isFirst?'opacity:0.3;cursor:not-allowed;':''}" onclick="moveGroupRow(${i},-1)" ${isFirst?'disabled':''} title="Выше">↑</button>
+        <button class="btn-sm" style="padding:4px 8px;background:var(--bg);color:var(--text);${isLast?'opacity:0.3;cursor:not-allowed;':''}" onclick="moveGroupRow(${i},1)" ${isLast?'disabled':''} title="Ниже">↓</button>
+      </td>
       <td><input class="admin-input group-name-input" list="existing-groups-list" value="${name}" placeholder="Название группы" style="width:100%" oninput="onGroupRowInput(${i},this.value)"></td>
       <td>${name?(ru>0?ru:'<span class="badge badge-error">0</span>'):'—'}</td>
       <td>${name?(uz>0?uz:'<span class="badge badge-error">0</span>'):'—'}</td>
@@ -1066,13 +1072,24 @@ function renderGroupsTable(dataGroups){
   const extraHtml=extra.length?`<div class="notice notice-info" style="margin-top:12px;">ℹ️ В базе вопросов есть группы, которых нет в списке выше: <strong>${extra.join(', ')}</strong>. Нажмите «+ Добавить группу» и впишите нужное название (можно выбрать из подсказки), чтобы они появились у тестируемого.</div>`:'';
 
   wrap.innerHTML=`<div style="overflow-x:auto"><table class="admin-table" id="groups-edit-table">
-    <thead><tr><th>Группа</th><th>RU</th><th>UZ</th><th>Всего</th><th></th></tr></thead>
+    <thead><tr><th></th><th>Группа</th><th>RU</th><th>UZ</th><th>Всего</th><th></th></tr></thead>
     <tbody>${rowsHtml}</tbody>
   </table></div>${extraHtml}`;
 }
 
 function onGroupRowInput(idx,val){
   state.groupsEditRows[idx].name=val;
+}
+
+function moveGroupRow(idx,direction){
+  const existingInputs=document.querySelectorAll('.group-name-input');
+  existingInputs.forEach((inp,i)=>{if(state.groupsEditRows[i])state.groupsEditRows[i].name=inp.value.trim();});
+  const newIdx=idx+direction;
+  if(newIdx<0||newIdx>=state.groupsEditRows.length)return;
+  const tmp=state.groupsEditRows[idx];
+  state.groupsEditRows[idx]=state.groupsEditRows[newIdx];
+  state.groupsEditRows[newIdx]=tmp;
+  renderGroupsTable([...new Set((state.adminAllQuestions||[]).map(q=>q.group))].filter(Boolean).sort());
 }
 
 function addGroupRow(){
