@@ -445,16 +445,20 @@
 // ============================================================
 const DEFAULT_CONFIG = {
   sheetId:'1OGdxVfMz9nu0RPjYlZXcYrPa42cVpWpl7c7EVvFG2Mc',
-  scriptUrl:'',
+  scriptUrl:'https://script.google.com/macros/s/AKfycbxo2m0L3oEuL3oGlfbRnDMDN5JaD-Ury1XFvKNjwFQxu5JDKl2EQjVwWkHBQrxVTYDP/exec',
+  adminLogin:'admin',
+  adminPass:'synergy2026'
+};
+
+// Настройки теста — общие для всех пользователей, хранятся в листе "settings" Google Sheets
+const DEFAULT_SETTINGS = {
   groups:['А1','А2','Б','Б2','В','С'],
   timerMinutes:10,
   questionCount:10,
   threshold:70,
   showScore:true,
   showVerdict:true,
-  showBreakdown:true,
-  adminLogin:'admin',
-  adminPass:'synergy2026'
+  showBreakdown:true
 };
 
 function getConfig(){
@@ -471,7 +475,8 @@ let state={
   availableGroups:[],selectedGroup:null,
   quizQuestions:[],currentQ:0,
   answers:[],timer:null,timeLeft:0,
-  sessionId:null,completedGroups:[]
+  sessionId:null,completedGroups:[],
+  settings:{...DEFAULT_SETTINGS}
 };
 
 // ============================================================
@@ -594,6 +599,34 @@ function resetUserGroups(phone,group){
   }catch{}
 }
 
+async function loadRemoteSettings(){
+  const cfg=getConfig();
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${cfg.sheetId}/gviz/tq?tqx=out:json&sheet=settings`;
+    const resp=await fetch(url);
+    const text=await resp.text();
+    const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/)[1]);
+    const rows=json.table.rows||[];
+    const raw={};
+    rows.forEach(row=>{
+      const key=row.c[0]?row.c[0].v:null;
+      const val=row.c[1]?row.c[1].v:null;
+      if(key!==null&&key!=='')raw[key]=val;
+    });
+    const result={...DEFAULT_SETTINGS};
+    if(raw.groups)result.groups=String(raw.groups).split(',').map(s=>s.trim()).filter(Boolean);
+    if(raw.timerMinutes!==undefined)result.timerMinutes=parseInt(raw.timerMinutes)||DEFAULT_SETTINGS.timerMinutes;
+    if(raw.questionCount!==undefined)result.questionCount=parseInt(raw.questionCount)||DEFAULT_SETTINGS.questionCount;
+    if(raw.threshold!==undefined)result.threshold=parseInt(raw.threshold)||DEFAULT_SETTINGS.threshold;
+    if(raw.showScore!==undefined)result.showScore=String(raw.showScore)==='true';
+    if(raw.showVerdict!==undefined)result.showVerdict=String(raw.showVerdict)==='true';
+    if(raw.showBreakdown!==undefined)result.showBreakdown=String(raw.showBreakdown)==='true';
+    return result;
+  }catch(e){
+    return {...DEFAULT_SETTINGS};
+  }
+}
+
 // ============================================================
 // ЗАГРУЗКА ВОПРОСОВ
 // ============================================================
@@ -625,9 +658,10 @@ async function showGroups(){
   const grid=document.getElementById('groups-grid');
   grid.innerHTML=`<div class="loading" style="grid-column:1/-1"><div class="spinner"></div>${t('loadingQ')}</div>`;
   try{
-    state.allQuestions=await loadQuestions();
-    const cfg=getConfig();
-    let groups=(cfg.groups&&cfg.groups.length)?cfg.groups:[...new Set(state.allQuestions.map(q=>q.group))].filter(Boolean).sort();
+    const [allQ,settings]=await Promise.all([loadQuestions(),loadRemoteSettings()]);
+    state.allQuestions=allQ;
+    state.settings=settings;
+    let groups=(state.settings.groups&&state.settings.groups.length)?state.settings.groups:[...new Set(state.allQuestions.map(q=>q.group))].filter(Boolean).sort();
     state.availableGroups=groups;
 
     // Заполняем select в админке (все группы из конфига, независимо от наличия вопросов)
@@ -674,10 +708,9 @@ function selectGroup(group,card){
 // ============================================================
 function startQuiz(){
   if(!state.selectedGroup)return;
-  const cfg=getConfig();
   const pool=state.allQuestions.filter(q=>q.group===state.selectedGroup&&q.language===state.lang);
   if(!pool.length){document.getElementById('groups-notice').innerHTML=`<div class="notice notice-warn">⚠️ ${t('noTests')}</div>`;return;}
-  const count=Math.min(cfg.questionCount,pool.length);
+  const count=Math.min(state.settings.questionCount,pool.length);
   state.quizQuestions=[...pool].sort(()=>Math.random()-0.5).slice(0,count);
   state.currentQ=0;
   state.answers=new Array(count).fill(null);
@@ -694,8 +727,7 @@ function startQuiz(){
 // ТАЙМЕР
 // ============================================================
 function startTimer(){
-  const cfg=getConfig();
-  state.timeLeft=cfg.timerMinutes*60;
+  state.timeLeft=(state.settings.timerMinutes||10)*60;
   updateTimerDisplay();
   if(state.timer)clearInterval(state.timer);
   state.timer=setInterval(()=>{
@@ -802,7 +834,7 @@ function declineQuiz(){
 
 async function finishQuiz(timeUp){
   if(state.timer)clearInterval(state.timer);
-  const cfg=getConfig();
+  const settings=state.settings;
   const questions=state.quizQuestions;
   const answers=state.answers;
   const total=questions.length;
@@ -819,19 +851,19 @@ async function finishQuiz(timeUp){
   });
 
   const pct=Math.round((score/total)*100);
-  const passed=pct>=cfg.threshold;
+  const passed=pct>=settings.threshold;
 
   showScreen('screen-result');
 
   // Показываем результат в зависимости от настроек
   const circle=document.getElementById('score-circle');
-  if(cfg.showScore&&cfg.showVerdict){
+  if(settings.showScore&&settings.showVerdict){
     circle.className='score-circle '+(passed?'pass':'fail');
     document.getElementById('score-num').textContent=pct+'%';
     document.getElementById('score-label-pct').textContent=`${score}/${total}`;
     document.getElementById('score-verdict').textContent=passed?t('pass'):t('fail');
     document.getElementById('score-detail').textContent=`${score} ${t('of')} ${total} · Группа ${state.selectedGroup}`;
-  } else if(cfg.showScore&&!cfg.showVerdict){
+  } else if(settings.showScore&&!settings.showVerdict){
     circle.className='score-circle neutral';
     document.getElementById('score-num').textContent=pct+'%';
     document.getElementById('score-label-pct').textContent=`${score}/${total}`;
@@ -847,7 +879,7 @@ async function finishQuiz(timeUp){
 
   // Разбор ответов
   const breakdownWrap=document.getElementById('result-breakdown-wrap');
-  if(cfg.showBreakdown){
+  if(settings.showBreakdown){
     breakdownWrap.style.display='block';
     document.getElementById('breakdown-title').textContent=t('breakdown');
     document.getElementById('result-items').innerHTML=details.map(d=>`
@@ -915,40 +947,56 @@ function checkAdminLogin(){
   if(login===cfg.adminLogin&&pass===cfg.adminPass){err.style.display='none';showAdminPanel();}
   else{err.style.display='block';err.innerHTML='<div class="notice notice-error">❌ Неверный логин или пароль</div>';}
 }
-function showAdminPanel(){
+async function showAdminPanel(){
   showScreen('screen-admin');
   const cfg=getConfig();
   document.getElementById('admin-sheet-id').value=cfg.sheetId;
   document.getElementById('admin-script-url').value=cfg.scriptUrl;
-  document.getElementById('admin-groups').value=(cfg.groups||[]).join(', ');
-  document.getElementById('admin-timer').value=cfg.timerMinutes;
-  document.getElementById('admin-q-count').value=cfg.questionCount;
-  document.getElementById('admin-threshold').value=cfg.threshold;
-  document.getElementById('show-score').checked=cfg.showScore;
-  document.getElementById('show-verdict').checked=cfg.showVerdict;
-  document.getElementById('show-breakdown').checked=cfg.showBreakdown;
   document.getElementById('admin-login-change').value=cfg.adminLogin;
   document.getElementById('admin-pass-change').value='';
+
+  state.settings=await loadRemoteSettings();
+  document.getElementById('admin-groups').value=(state.settings.groups||[]).join(', ');
+  document.getElementById('admin-timer').value=state.settings.timerMinutes;
+  document.getElementById('admin-q-count').value=state.settings.questionCount;
+  document.getElementById('admin-threshold').value=state.settings.threshold;
+  document.getElementById('show-score').checked=state.settings.showScore;
+  document.getElementById('show-verdict').checked=state.settings.showVerdict;
+  document.getElementById('show-breakdown').checked=state.settings.showBreakdown;
+
   loadAdminResults();
   loadGroupsSummary();
 }
-function saveSettings(){
+async function saveSettings(){
+  // Локальные (на этом устройстве): доступ к таблице и админка
   const cfg=getConfig();
   cfg.sheetId=document.getElementById('admin-sheet-id').value.trim()||cfg.sheetId;
-  cfg.scriptUrl=document.getElementById('admin-script-url').value.trim();
-  cfg.groups=document.getElementById('admin-groups').value.split(',').map(g=>g.trim()).filter(Boolean);
-  cfg.timerMinutes=parseInt(document.getElementById('admin-timer').value)||10;
-  cfg.questionCount=parseInt(document.getElementById('admin-q-count').value)||10;
-  cfg.threshold=parseInt(document.getElementById('admin-threshold').value)||70;
-  cfg.showScore=document.getElementById('show-score').checked;
-  cfg.showVerdict=document.getElementById('show-verdict').checked;
-  cfg.showBreakdown=document.getElementById('show-breakdown').checked;
+  cfg.scriptUrl=document.getElementById('admin-script-url').value.trim()||cfg.scriptUrl;
   const newLogin=document.getElementById('admin-login-change').value.trim();
   const newPass=document.getElementById('admin-pass-change').value.trim();
   if(newLogin)cfg.adminLogin=newLogin;
   if(newPass)cfg.adminPass=newPass;
   saveConfig(cfg);
+
+  // Общие настройки (для всех пользователей) — сохраняются в лист settings
+  const newSettings={
+    groups:document.getElementById('admin-groups').value.split(',').map(g=>g.trim()).filter(Boolean),
+    timerMinutes:parseInt(document.getElementById('admin-timer').value)||10,
+    questionCount:parseInt(document.getElementById('admin-q-count').value)||10,
+    threshold:parseInt(document.getElementById('admin-threshold').value)||70,
+    showScore:document.getElementById('show-score').checked,
+    showVerdict:document.getElementById('show-verdict').checked,
+    showBreakdown:document.getElementById('show-breakdown').checked
+  };
+  state.settings=newSettings;
+
   const saved=document.getElementById('settings-saved');
+  if(cfg.scriptUrl){
+    try{
+      await fetch(cfg.scriptUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'saveSettings',settings:newSettings})});
+    }catch(e){}
+  }
+
   saved.style.display='flex';
   setTimeout(()=>saved.style.display='none',3000);
 }
@@ -966,8 +1014,7 @@ async function loadGroupsSummary(){
   el.innerHTML='<div class="loading"><div class="spinner"></div>Загрузка...</div>';
   try{
     const all=await loadQuestions();
-    const cfg=getConfig();
-    const configGroups=(cfg.groups||[]);
+    const configGroups=state.settings.groups||[];
     const dataGroups=[...new Set(all.map(q=>q.group))].filter(Boolean);
     // Объединяем: сначала группы из конфига (в заданном порядке), затем группы из данных, которых нет в конфиге
     const extra=dataGroups.filter(g=>!configGroups.includes(g));
