@@ -199,7 +199,7 @@
       </div>
       <div class="form-group">
         <label class="form-label" id="label-phone">Номер телефона <span>*</span></label>
-        <input class="form-input" id="input-phone" type="tel" placeholder="93 537 12 34" maxlength="12">
+        <input class="form-input" id="input-phone" type="tel" inputmode="numeric" placeholder="93 537 12 34" maxlength="12" oninput="formatPhoneInput(this)">
         <div class="form-hint" id="hint-phone">Формат: 93 537 12 34</div>
       </div>
       <div class="form-row">
@@ -551,6 +551,19 @@ function applyLang(){
 }
 
 // ============================================================
+// ФОРМАТИРОВАНИЕ ТЕЛЕФОНА
+// ============================================================
+function formatPhoneInput(el){
+  let digits=el.value.replace(/\D/g,'').slice(0,9);
+  let parts=[];
+  if(digits.length>0)parts.push(digits.slice(0,2));
+  if(digits.length>2)parts.push(digits.slice(2,5));
+  if(digits.length>5)parts.push(digits.slice(5,7));
+  if(digits.length>7)parts.push(digits.slice(7,9));
+  el.value=parts.join(' ');
+}
+
+// ============================================================
 // ЛОГИН
 // ============================================================
 function submitLogin(){
@@ -598,26 +611,18 @@ function resetUserGroups(phone,group){
 
 async function loadRemoteSettings(){
   const cfg=getConfig();
+  if(!cfg.scriptUrl)return{...DEFAULT_SETTINGS};
   try{
-    const url=`https://docs.google.com/spreadsheets/d/${cfg.sheetId}/gviz/tq?tqx=out:json&sheet=settings&_ts=${Date.now()}`;
-    const resp=await fetch(url);
-    const text=await resp.text();
-    const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/)[1]);
-    const rows=json.table.rows||[];
-    const raw={};
-    rows.forEach(row=>{
-      const key=row.c[0]?row.c[0].v:null;
-      const val=row.c[1]?row.c[1].v:null;
-      if(key!==null&&key!=='')raw[key]=val;
-    });
+    const resp=await fetch(`${cfg.scriptUrl}?action=getSettings&_ts=${Date.now()}`);
+    const raw=await resp.json();
     const result={...DEFAULT_SETTINGS};
     if(raw.groups)result.groups=String(raw.groups).split(',').map(s=>s.trim()).filter(Boolean);
-    if(raw.timerMinutes!==undefined)result.timerMinutes=parseInt(raw.timerMinutes)||DEFAULT_SETTINGS.timerMinutes;
-    if(raw.questionCount!==undefined)result.questionCount=parseInt(raw.questionCount)||DEFAULT_SETTINGS.questionCount;
-    if(raw.threshold!==undefined)result.threshold=parseInt(raw.threshold)||DEFAULT_SETTINGS.threshold;
-    if(raw.showScore!==undefined)result.showScore=String(raw.showScore)==='true';
-    if(raw.showVerdict!==undefined)result.showVerdict=String(raw.showVerdict)==='true';
-    if(raw.showBreakdown!==undefined)result.showBreakdown=String(raw.showBreakdown)==='true';
+    if(raw.timerMinutes!==undefined&&raw.timerMinutes!=='')result.timerMinutes=parseInt(raw.timerMinutes)||DEFAULT_SETTINGS.timerMinutes;
+    if(raw.questionCount!==undefined&&raw.questionCount!=='')result.questionCount=parseInt(raw.questionCount)||DEFAULT_SETTINGS.questionCount;
+    if(raw.threshold!==undefined&&raw.threshold!=='')result.threshold=parseInt(raw.threshold)||DEFAULT_SETTINGS.threshold;
+    if(raw.showScore!==undefined&&raw.showScore!=='')result.showScore=String(raw.showScore)==='true';
+    if(raw.showVerdict!==undefined&&raw.showVerdict!=='')result.showVerdict=String(raw.showVerdict)==='true';
+    if(raw.showBreakdown!==undefined&&raw.showBreakdown!=='')result.showBreakdown=String(raw.showBreakdown)==='true';
     return result;
   }catch(e){
     return {...DEFAULT_SETTINGS};
@@ -1123,6 +1128,19 @@ async function loadAdminResults(){
 }
 
 applyLang();
+
+// ============================================================
+// TAB — переход к следующему вопросу после выбора ответа
+// ============================================================
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Tab')return;
+  const quizScreen=document.getElementById('screen-quiz');
+  if(!quizScreen.classList.contains('active'))return;
+  if(state.answers[state.currentQ]===null)return;
+  if(state.currentQ>=state.quizQuestions.length-1)return;
+  e.preventDefault();
+  goToQuestion(state.currentQ+1);
+});
 </script>
 </body>
 </html>
