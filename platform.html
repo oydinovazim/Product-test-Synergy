@@ -343,18 +343,15 @@
     </div>
 
     <div class="admin-section">
-      <div class="admin-section-title">📋 Список товарных групп</div>
-      <div class="form-group">
-        <label class="form-label">Группы (через запятую, в нужном порядке отображения)</label>
-        <input class="admin-input" id="admin-groups" type="text" placeholder="А1, А2, Б, Б2, В, С" style="width:100%">
-        <div class="form-hint">Эти группы будут показаны тестируемому. Если для группы нет вопросов на выбранном языке — она будет видна, но недоступна (с пометкой «Тестов нет»)</div>
+      <div class="admin-section-title">📋 Товарные группы и база вопросов</div>
+      <p class="form-hint" style="margin-bottom:14px;">Эти группы видит тестируемый. Для существующих в базе групп название можно выбрать из подсказки (во избежание путаницы кириллица/латиница). Для новой группы (которой пока нет в базе) — введите название вручную.</p>
+      <datalist id="existing-groups-list"></datalist>
+      <div id="groups-table-wrap"><div class="loading"><div class="spinner"></div>Загрузка...</div></div>
+      <div class="admin-row" style="margin-top:12px;">
+        <button class="btn-sm btn-sm-primary" onclick="addGroupRow()">+ Добавить группу</button>
+        <button class="btn-sm btn-sm-gold" onclick="refreshGroupsTable()">🔄 Обновить счётчики</button>
       </div>
-    </div>
-
-    <div class="admin-section">
-      <div class="admin-section-title">📊 Сводка по базе вопросов</div>
-      <button class="btn-sm btn-sm-primary" onclick="loadGroupsSummary()" style="margin-bottom:14px;">🔄 Обновить</button>
-      <div id="groups-summary-table"><div class="loading"><div class="spinner"></div>Загрузка...</div></div>
+      <div class="form-hint" style="margin-top:10px;">Красным — нет вопросов на этом языке. Список групп также сохраняется в отдельный лист <strong>group_list</strong> вашей таблицы — его можно использовать для выпадающего списка при заполнении базы вопросов.</div>
     </div>
 
     <div class="admin-section">
@@ -602,7 +599,7 @@ function resetUserGroups(phone,group){
 async function loadRemoteSettings(){
   const cfg=getConfig();
   try{
-    const url=`https://docs.google.com/spreadsheets/d/${cfg.sheetId}/gviz/tq?tqx=out:json&sheet=settings`;
+    const url=`https://docs.google.com/spreadsheets/d/${cfg.sheetId}/gviz/tq?tqx=out:json&sheet=settings&_ts=${Date.now()}`;
     const resp=await fetch(url);
     const text=await resp.text();
     const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/)[1]);
@@ -632,7 +629,7 @@ async function loadRemoteSettings(){
 // ============================================================
 async function loadQuestions(){
   const cfg=getConfig();
-  const url=`https://docs.google.com/spreadsheets/d/${cfg.sheetId}/gviz/tq?tqx=out:json&sheet=questions`;
+  const url=`https://docs.google.com/spreadsheets/d/${cfg.sheetId}/gviz/tq?tqx=out:json&sheet=questions&_ts=${Date.now()}`;
   const resp=await fetch(url);
   const text=await resp.text();
   const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/)[1]);
@@ -956,7 +953,6 @@ async function showAdminPanel(){
   document.getElementById('admin-pass-change').value='';
 
   state.settings=await loadRemoteSettings();
-  document.getElementById('admin-groups').value=(state.settings.groups||[]).join(', ');
   document.getElementById('admin-timer').value=state.settings.timerMinutes;
   document.getElementById('admin-q-count').value=state.settings.questionCount;
   document.getElementById('admin-threshold').value=state.settings.threshold;
@@ -965,7 +961,7 @@ async function showAdminPanel(){
   document.getElementById('show-breakdown').checked=state.settings.showBreakdown;
 
   loadAdminResults();
-  loadGroupsSummary();
+  initGroupsEditor();
 }
 async function saveSettings(){
   // Локальные (на этом устройстве): доступ к таблице и админка
@@ -978,9 +974,14 @@ async function saveSettings(){
   if(newPass)cfg.adminPass=newPass;
   saveConfig(cfg);
 
+  // Считываем актуальные значения групп из таблицы редактора
+  const groupInputs=document.querySelectorAll('.group-name-input');
+  groupInputs.forEach((inp,i)=>{if(state.groupsEditRows[i])state.groupsEditRows[i].name=inp.value.trim();});
+  const groupsList=state.groupsEditRows.map(r=>r.name.trim()).filter(Boolean);
+
   // Общие настройки (для всех пользователей) — сохраняются в лист settings
   const newSettings={
-    groups:document.getElementById('admin-groups').value.split(',').map(g=>g.trim()).filter(Boolean),
+    groups:groupsList,
     timerMinutes:parseInt(document.getElementById('admin-timer').value)||10,
     questionCount:parseInt(document.getElementById('admin-q-count').value)||10,
     threshold:parseInt(document.getElementById('admin-threshold').value)||70,
@@ -1009,43 +1010,80 @@ function resetUser(){
   result.style.display='block';
   result.innerHTML=`<div class="notice notice-success">✓ Блокировка снята для ${phone}${group?' (группа '+group+')':' (все группы)'}</div>`;
 }
-async function loadGroupsSummary(){
-  const el=document.getElementById('groups-summary-table');
-  el.innerHTML='<div class="loading"><div class="spinner"></div>Загрузка...</div>';
-  try{
-    const all=await loadQuestions();
-    const configGroups=state.settings.groups||[];
-    const dataGroups=[...new Set(all.map(q=>q.group))].filter(Boolean);
-    // Объединяем: сначала группы из конфига (в заданном порядке), затем группы из данных, которых нет в конфиге
-    const extra=dataGroups.filter(g=>!configGroups.includes(g));
-    const groups=[...configGroups,...extra];
+async function initGroupsEditor(){
+  state.groupsEditRows=(state.settings.groups||[]).map(g=>({name:g}));
+  await refreshGroupsTable();
+}
 
-    if(!groups.length){el.innerHTML='<div class="notice notice-info">ℹ️ Список групп пуст</div>';return;}
+async function refreshGroupsTable(){
+  const wrap=document.getElementById('groups-table-wrap');
+  wrap.innerHTML='<div class="loading"><div class="spinner"></div>Загрузка...</div>';
 
-    const rows=groups.map(g=>{
-      const ru=all.filter(q=>q.group===g&&q.language==='ru').length;
-      const uz=all.filter(q=>q.group===g&&q.language==='uz').length;
-      const total=all.filter(q=>q.group===g).length;
-      const notInConfig=!configGroups.includes(g);
-      return{group:g,ru,uz,total,notInConfig};
-    });
-
-    el.innerHTML=`<div style="overflow-x:auto"><table class="admin-table">
-      <thead><tr><th>Группа</th><th>RU</th><th>UZ</th><th>Всего</th><th></th></tr></thead>
-      <tbody>${rows.map(r=>`
-        <tr>
-          <td><strong>${r.group}</strong></td>
-          <td>${r.ru>0?r.ru:'<span class="badge badge-error">0</span>'}</td>
-          <td>${r.uz>0?r.uz:'<span class="badge badge-error">0</span>'}</td>
-          <td>${r.total}</td>
-          <td>${r.notInConfig?'<span class="badge badge-neutral">не в списке групп</span>':''}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table></div>
-    <div class="form-hint" style="margin-top:10px;">Красным — нет вопросов на этом языке. «Не в списке групп» — группа есть в таблице вопросов, но не добавлена в список выше.</div>`;
-  }catch(e){
-    el.innerHTML=`<div class="notice notice-error">❌ Ошибка загрузки: ${e.message}</div>`;
+  // Перед обновлением — считываем актуальные значения из текущих input (если таблица уже была отрисована)
+  const existingInputs=document.querySelectorAll('.group-name-input');
+  if(existingInputs.length===state.groupsEditRows.length){
+    existingInputs.forEach((inp,i)=>state.groupsEditRows[i].name=inp.value.trim());
   }
+
+  try{
+    state.adminAllQuestions=await loadQuestions();
+
+    // Заполняем datalist уникальными группами из базы
+    const dataGroups=[...new Set(state.adminAllQuestions.map(q=>q.group))].filter(Boolean).sort();
+    const datalist=document.getElementById('existing-groups-list');
+    datalist.innerHTML=dataGroups.map(g=>`<option value="${g}">`).join('');
+
+    renderGroupsTable(dataGroups);
+  }catch(e){
+    wrap.innerHTML=`<div class="notice notice-error">❌ Ошибка загрузки: ${e.message}</div>`;
+  }
+}
+
+function renderGroupsTable(dataGroups){
+  const wrap=document.getElementById('groups-table-wrap');
+  const all=state.adminAllQuestions||[];
+  const configNames=state.groupsEditRows.map(r=>r.name);
+
+  const rowsHtml=state.groupsEditRows.map((r,i)=>{
+    const name=r.name;
+    const ru=all.filter(q=>q.group===name&&q.language==='ru').length;
+    const uz=all.filter(q=>q.group===name&&q.language==='uz').length;
+    const total=all.filter(q=>q.group===name).length;
+    return`<tr>
+      <td><input class="admin-input group-name-input" list="existing-groups-list" value="${name}" placeholder="Название группы" style="width:100%" oninput="onGroupRowInput(${i},this.value)"></td>
+      <td>${name?(ru>0?ru:'<span class="badge badge-error">0</span>'):'—'}</td>
+      <td>${name?(uz>0?uz:'<span class="badge badge-error">0</span>'):'—'}</td>
+      <td>${name?total:'—'}</td>
+      <td><button class="btn-sm btn-sm-danger" onclick="removeGroupRow(${i})">✕</button></td>
+    </tr>`;
+  }).join('');
+
+  // Группы, найденные в базе, но не добавленные в список
+  const extra=dataGroups.filter(g=>!configNames.includes(g));
+  const extraHtml=extra.length?`<div class="notice notice-info" style="margin-top:12px;">ℹ️ В базе вопросов есть группы, которых нет в списке выше: <strong>${extra.join(', ')}</strong>. Нажмите «+ Добавить группу» и впишите нужное название (можно выбрать из подсказки), чтобы они появились у тестируемого.</div>`:'';
+
+  wrap.innerHTML=`<div style="overflow-x:auto"><table class="admin-table" id="groups-edit-table">
+    <thead><tr><th>Группа</th><th>RU</th><th>UZ</th><th>Всего</th><th></th></tr></thead>
+    <tbody>${rowsHtml}</tbody>
+  </table></div>${extraHtml}`;
+}
+
+function onGroupRowInput(idx,val){
+  state.groupsEditRows[idx].name=val;
+}
+
+function addGroupRow(){
+  const existingInputs=document.querySelectorAll('.group-name-input');
+  existingInputs.forEach((inp,i)=>state.groupsEditRows[i].name=inp.value.trim());
+  state.groupsEditRows.push({name:''});
+  renderGroupsTable([...new Set((state.adminAllQuestions||[]).map(q=>q.group))].filter(Boolean).sort());
+}
+
+function removeGroupRow(idx){
+  const existingInputs=document.querySelectorAll('.group-name-input');
+  existingInputs.forEach((inp,i)=>state.groupsEditRows[i].name=inp.value.trim());
+  state.groupsEditRows.splice(idx,1);
+  renderGroupsTable([...new Set((state.adminAllQuestions||[]).map(q=>q.group))].filter(Boolean).sort());
 }
 
 async function loadAdminResults(){
@@ -1053,7 +1091,7 @@ async function loadAdminResults(){
   el.innerHTML='<div class="loading"><div class="spinner"></div>Загрузка...</div>';
   const cfg=getConfig();
   try{
-    const url=`https://docs.google.com/spreadsheets/d/${cfg.sheetId}/gviz/tq?tqx=out:json&sheet=results`;
+    const url=`https://docs.google.com/spreadsheets/d/${cfg.sheetId}/gviz/tq?tqx=out:json&sheet=results&_ts=${Date.now()}`;
     const resp=await fetch(url);
     const text=await resp.text();
     const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/)[1]);
